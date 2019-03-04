@@ -1,6 +1,6 @@
 from .base import MSTRBaseSession
 from .exceptions import ExecutionCancelledException, ExecutionFailedException, MSTRUnknownException, SessionException
-from .execution_status import CUBE_RUNNING, CUBE_PUBLISHED
+from .execution_status import CUBE_RUNNING, CUBE_PUBLISHED, CUBE_PREPARING
 from .mixins import SessionPersistenceMixin
 
 
@@ -52,6 +52,8 @@ class MSTRRESTSession(SessionPersistenceMixin, MSTRBaseSession):
                     return CUBE_PUBLISHED
                 elif status & CUBE_RUNNING == CUBE_RUNNING:
                     return CUBE_RUNNING
+                elif status & CUBE_PREPARING == CUBE_PREPARING:
+                    return CUBE_PREPARING
                 else:
                     raise MSTRUnknownException(**resp_json)
             else:
