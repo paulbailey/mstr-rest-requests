@@ -14,11 +14,11 @@ class MSTRBaseSession(BaseUrlSession):
         except KeyError:
             pass
 
-    def request(self, method, url, *args, **kwargs):
+    def request(self, method, url, include_auth=True, *args, **kwargs):
 
         headers = kwargs.get('headers', {})
 
-        if MSTR_AUTH_TOKEN in self.headers:
+        if include_auth and MSTR_AUTH_TOKEN in self.headers:
             headers.update({MSTR_AUTH_TOKEN: self.headers[MSTR_AUTH_TOKEN]})
 
         response = super(MSTRBaseSession, self).request(method, url, headers=headers, *args, **kwargs)
