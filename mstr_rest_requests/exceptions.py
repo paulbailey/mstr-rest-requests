@@ -1,4 +1,4 @@
-from .utils import iserver_error_codes
+from .errors import iserver_error_codes
 
 
 class MSTRException(Exception):
