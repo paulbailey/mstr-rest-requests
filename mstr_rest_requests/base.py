@@ -31,18 +31,19 @@ class MSTRBaseSession(BaseUrlSession):
 
         response = super(MSTRBaseSession, self).request(method, url, headers=headers, *args, **kwargs)
 
-        if not response.ok and len(response.content) > 0:
+        if not response.ok and response.headers['content-type'] == 'application/json':
             try:
                 resp_json = response.json()
                 try:
-                    if resp_json['code'] in ['ERR003', 'ERR001']:
-                        raise LoginFailureException(**resp_json)
-                    elif resp_json['code'] == 'ERR009':
-                        raise SessionException(**resp_json)
-                    else:
-                        raise MSTRException(**resp_json)
+                    resp_code = resp_json['code']
                 except KeyError:
                     raise MSTRUnknownException(**resp_json)
+                if resp_code in ['ERR003', 'ERR001']:
+                    raise LoginFailureException(**resp_json)
+                elif resp_code == 'ERR009':
+                    raise SessionException(**resp_json)
+                else:
+                    raise MSTRException(**resp_json)
             except ValueError:
                 raise MSTRException("Couldn't parse response: {}".format(response.text))
         if response.ok:
