@@ -20,7 +20,7 @@ def test_prolong_session():
     s = MSTRRESTSession(base_url=TEST_BASE_URL)
     s.login()
     assert s.has_session() is True
-    response = s.put('sessions')
+    response = s.put_sessions()
     assert response.status_code == 204
     s.logout()
 
@@ -29,7 +29,7 @@ def test_get_session_status():
     s = MSTRRESTSession(base_url=TEST_BASE_URL)
     s.login()
     assert s.has_session() is True
-    response = s.get('sessions')
+    response = s.get_sessions()
     assert response.status_code == 200
     s.logout()
 
@@ -38,6 +38,6 @@ def test_get_session_failure():
     s = MSTRRESTSession(base_url=TEST_BASE_URL)
     s.login()
     assert s.has_session() is True
-    s.post('auth/logout')
-    with pytest.raises(exceptions.LoginFailureException):
-        s.get('sessions')
+    s.logout()
+    with pytest.raises(exceptions.SessionException):
+        s.get_sessions()
