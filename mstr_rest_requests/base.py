@@ -1,7 +1,10 @@
 from requests_toolbelt.sessions import BaseUrlSession
 
-from .exceptions import LoginFailureException, MSTRException, SessionException
-from .utils import MSTR_AUTH_TOKEN, MSTR_HEADER_PREFIX
+from .exceptions import LoginFailureException, MSTRException, SessionException, MSTRUnknownException
+
+MSTR_AUTH_TOKEN = 'X-MSTR-AuthToken'
+MSTR_PROJECT_ID_HEADER = 'X-MSTR-ProjectID'
+MSTR_HEADER_PREFIX = 'X-MSTR'
 
 
 class MSTRBaseSession(BaseUrlSession):
@@ -14,12 +17,17 @@ class MSTRBaseSession(BaseUrlSession):
         except KeyError:
             pass
 
-    def request(self, method, url, include_auth=True, *args, **kwargs):
+    def request(self, method, url, include_auth=True, project_id=None, *args, **kwargs):
 
         headers = kwargs.get('headers', {})
 
         if include_auth and MSTR_AUTH_TOKEN in self.headers:
             headers.update({MSTR_AUTH_TOKEN: self.headers[MSTR_AUTH_TOKEN]})
+
+        if project_id is not None:
+            headers.update({
+                MSTR_PROJECT_ID_HEADER: project_id
+            })
 
         response = super(MSTRBaseSession, self).request(method, url, headers=headers, *args, **kwargs)
 
@@ -31,10 +39,10 @@ class MSTRBaseSession(BaseUrlSession):
                         raise LoginFailureException(**resp_json)
                     elif resp_json['code'] == 'ERR009':
                         raise SessionException(**resp_json)
+                    else:
+                        raise MSTRException(**resp_json)
                 except KeyError:
-                    raise MSTRException(**resp_json)
-                else:
-                    raise MSTRException(**resp_json)
+                    raise MSTRUnknownException(**resp_json)
             except ValueError:
                 raise MSTRException("Couldn't parse response: {}".format(response.text))
         if response.ok:
