@@ -8,3 +8,11 @@ install:
   - pipenv install --dev
 script:
   - pytest
+deploy:
+  provider: pypi
+  user: paulbailey
+  password:
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"
+  skip_existing: true
