@@ -2,36 +2,10 @@ from .base import MSTRBaseSession
 from .exceptions import ExecutionCancelledException, ExecutionFailedException, MSTRUnknownException, SessionException
 from .execution_status import CUBE_RUNNING, CUBE_PUBLISHED, CUBE_PREPARING
 from .mixins import SessionPersistenceMixin
+from .api import AuthMixin, SessionsMixin
 
 
-class MSTRRESTSession(SessionPersistenceMixin, MSTRBaseSession):
-
-    def login(self, username=None, password=None):
-        if username is not None and password is not None:
-            data = {
-                'username': username,
-                'password': password,
-                'loginMode': 1
-            }
-        else:
-            data = {
-                'loginMode': 8
-            }
-        login_response = self.post('auth/login', data=data)
-        if login_response.status_code != 204:
-            login_response.raise_for_status()
-        return login_response
-
-    def logout(self):
-        logout_response = self.post('auth/logout')
-        if logout_response.status_code == 204:
-            self.destroy_auth_token()
-
-    def extend_session(self):
-        if self.has_session():
-            self.put('sessions')
-        else:
-            raise SessionException('There is no session to extend.')
+class MSTRRESTSession(AuthMixin, SessionsMixin, SessionPersistenceMixin, MSTRBaseSession):
 
     def execute_dataset_object(self, project_id, object_id):
         response = self.post('cubes/{}'.format(object_id), headers={
