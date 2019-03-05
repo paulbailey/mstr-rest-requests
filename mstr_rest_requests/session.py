@@ -1,11 +1,18 @@
 from .base import MSTRBaseSession
-from .exceptions import ExecutionCancelledException, ExecutionFailedException, MSTRUnknownException, SessionException
+from .exceptions import ExecutionCancelledException, ExecutionFailedException, MSTRUnknownException
 from .execution_status import CUBE_RUNNING, CUBE_PUBLISHED, CUBE_PREPARING
 from .mixins import SessionPersistenceMixin
-from .api import AuthMixin, SessionsMixin
+from .api import AuthMixin, SessionsMixin, ObjectsMixin, DatasetsMixin, CubesMixin
 
 
-class MSTRRESTSession(AuthMixin, SessionsMixin, SessionPersistenceMixin, MSTRBaseSession):
+class MSTRRESTSession(ObjectsMixin,
+                      DatasetsMixin,
+                      CubesMixin,
+                      AuthMixin,
+                      SessionsMixin,
+                      SessionPersistenceMixin,
+                      MSTRBaseSession):
+    pass
 
     def execute_dataset_object(self, project_id, object_id):
         response = self.post('cubes/{}'.format(object_id), headers={

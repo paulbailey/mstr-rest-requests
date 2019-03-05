@@ -16,13 +16,14 @@ class AuthMixin:
             login_response.raise_for_status()
         return login_response
 
-    def login(self, username=None, password=None):
-        return self.post_login(username, password)
-
     def post_logout(self):
         logout_response = self.post('auth/logout')
         if logout_response.status_code == 204:
             self.destroy_auth_token()
+
+    # "Friendly" method aliases
+    def login(self, username=None, password=None):
+        return self.post_login(username, password)
 
     def logout(self):
         return self.post_logout()
