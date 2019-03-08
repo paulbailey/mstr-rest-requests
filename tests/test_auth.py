@@ -4,40 +4,46 @@ from mstr_rest_requests import exceptions
 import pytest
 
 
-TEST_BASE_URL = 'https://demo.microstrategy.com/MicroStrategyLibrary/api/'
+@pytest.fixture()
+def session():
+    return MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
 
 
-def test_login():
-    s = MSTRRESTSession(base_url=TEST_BASE_URL)
-    assert s.has_session() is False
-    s.login()
-    assert s.has_session() is True
-    s.logout()
-    assert s.has_session() is False
+def test_login(session):
+    assert session.has_session() is False
+    session.login()
+    assert session.has_session() is True
+    session.logout()
+    assert session.has_session() is False
 
 
-def test_prolong_session():
-    s = MSTRRESTSession(base_url=TEST_BASE_URL)
-    s.login()
-    assert s.has_session() is True
-    response = s.put_sessions()
+def test_prolong_session(session):
+    session.login()
+    assert session.has_session() is True
+    response = session.put_sessions()
     assert response.status_code == 204
-    s.logout()
+    session.logout()
 
 
-def test_get_session_status():
-    s = MSTRRESTSession(base_url=TEST_BASE_URL)
-    s.login()
-    assert s.has_session() is True
-    response = s.get_sessions()
+def test_get_session_status(session):
+    session.login()
+    assert session.has_session() is True
+    response = session.get_sessions()
     assert response.status_code == 200
-    s.logout()
+    session.logout()
 
 
-def test_get_session_failure():
-    s = MSTRRESTSession(base_url=TEST_BASE_URL)
-    s.login()
-    assert s.has_session() is True
-    s.logout()
+def test_get_session_failure(session):
+    session.login()
+    assert session.has_session() is True
+    session.logout()
     with pytest.raises(exceptions.SessionException):
-        s.get_sessions()
+        session.get_sessions()
+
+
+def test_remote_session_issue(session):
+    session.login()
+    assert session.has_session() is True
+    session.headers.update({'x-mstr-authtoken': "You're my wife now"})
+    with pytest.raises(exceptions.MSTRException):
+        session.get_sessions()

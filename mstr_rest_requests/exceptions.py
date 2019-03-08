@@ -30,3 +30,7 @@ class MSTRUnknownException(MSTRException):
 
 class ExecutionFailedException(MSTRException):
     pass
+
+
+class ResourceNotFoundException(MSTRException):
+    pass

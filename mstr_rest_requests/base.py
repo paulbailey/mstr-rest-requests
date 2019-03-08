@@ -1,6 +1,6 @@
 from requests_toolbelt.sessions import BaseUrlSession
 
-from .exceptions import LoginFailureException, MSTRException, SessionException, MSTRUnknownException
+from . import exceptions
 
 MSTR_AUTH_TOKEN = 'X-MSTR-AuthToken'
 MSTR_PROJECT_ID_HEADER = 'X-MSTR-ProjectID'
@@ -37,15 +37,17 @@ class MSTRBaseSession(BaseUrlSession):
                 try:
                     resp_code = resp_json['code']
                 except KeyError:
-                    raise MSTRUnknownException(**resp_json)
+                    raise exceptions.MSTRUnknownException(**resp_json)
                 if resp_code in ['ERR003', 'ERR001']:
-                    raise LoginFailureException(**resp_json)
+                    raise exceptions.LoginFailureException(**resp_json)
                 elif resp_code == 'ERR009':
-                    raise SessionException(**resp_json)
+                    raise exceptions.SessionException(**resp_json)
+                elif resp_code == 'ERR004':
+                    raise exceptions.ResourceNotFoundException(**resp_json)
                 else:
-                    raise MSTRException(**resp_json)
+                    raise exceptions.MSTRException(**resp_json)
             except ValueError:
-                raise MSTRException("Couldn't parse response: {}".format(response.text))
+                raise exceptions.MSTRException("Couldn't parse response: {}".format(response.text))
         if response.ok:
             for key, value in response.headers.items():
                 if key.startswith('X-MSTR'):
