@@ -1,19 +1,25 @@
 dist: xenial
 language: python
+env:
+  global:
+  - AWS_ACCESS_KEY_ID=AKIAIJKNF3HTS4MMVXUQ
+  - secure: boe4HjAwxHaC8KZ4ifJrdTuc93VAKLhzmgmmiZq20wxk5PASrJVIU7hbeWSoDEsq3w3D2r0Z7K1rp74xsJ82zMUn6FJFTdNUD1772rRbBzB5fVpGVm03pkrsc5CAZ0i1s7r0JUYyFC4VwoiG2WsD6DoZXfw3l8Tr3aw2CToGhW2fgOCDIEPQJbpSvLAVS192a+exKbQmPCnT3/4awMfmdzcrxGdpVyh8Tr/NmsrCcisDPDQ6pnhjj/e3X4kMtV6SznsU1lbYtcLfCLBkwdkvkVjHBv9gopf+0EGTRlOziCpC1uJRqdUCK3oJ8XQYOhwD1gbJdfNxeiSR2t7CSTAgdP2UAb8jz0d9Rc+XutKU82NrDuukVrsXL+zZ1K5AM8MquLMTUg9GewRJ0Y0CYX0rGqBa13mkdYYf3HNDU68eack4JD0uYYOIZaprV7RNaW316p6s9vIQOL3U9nIOBQVtqEanlmsTvbQTmxhnLBeSEjJhFe/UtVV5hCVevUoG1/7hkdaw18h63HRgo8sYYWokYAzKx4zseAX9FdZ3So0l6k9qbKgHBgweNQ8M/GXuRfTJyTgePGcNEeFf8m/LDPNFNdWLCVSD8I4OlbTH0vFz5ElEqg63u+63jcx8bd7Ke2rWWSzsQV9hUiOob8lUhM3jTaMWxRMk+crJ38XBVmZ7XYs=
 python:
-  - "3.6"
-  - "3.7"
+- '3.6'
+- '3.7'
 install:
-  - pip install pipenv
-  - pipenv install --dev
+- pip install pipenv
+- pipenv install --dev
 script:
-  - pytest
+- pytest
 deploy:
   provider: pypi
   user: paulbailey
   password:
-    secure: "jLrBn0CzIUDbNl6M11XFRaQzbzCFS88eseTDdlE7Oh36EBcnXMJdbv5n4ZU20GP9/VZTK5d55WQgiaqNcbfnMt1TpEUGvYr8M7ffR4E0KMMhOXclUeoRaaNKGW/l69SZr0yuLCXIhA8ZXppspssiSwO7n24TPmvH7P/QP139gonHOUQsbysZNIlBhSpw/esMJugIvpAvBt652vqIV/W9g0AdEN3UZWfgdyNygOBndCvdH5Ha7+g8HOBv6jkX9WWCW+ajRCLpNBBHydGysdQMFE+KzcxXOC3dmzEkHL6KEaxPpqVUjlJ+eBxTqDwLqKTg2/ZGKE4SLztAGtxTXxiEfopkf06abqlUhjnOM+ie9SlUc3kySeZbQOhDx4y0KeZqxhzkjcaqQINf2Y7wxPvMFeope5QHjmA/Y6KGSqo5VpEExs0XK8mX2rhUypnWmhURJLvVA/ed4VVWiJ415OkHFIw1yhTC2EzZiR+Kb1Qna8/8ISQBONT7+BM685jXQAf7pd8xny5iKBLSqJ/KNI7yy4kA87l5qWdk6F24ZXPKCd/A+NVMETbLrRgJJIpHoOKLqqP76co9ywcQU6FCtM4pxr3BGK/ZnWC9vmrVV6JDu1vCM/ZYfIw697cQzGVEI0OP5U3uV0BcO4Ab+UU+1aaHnpNnMYD9K5xboK5A1C+WDkY="
+    secure: jLrBn0CzIUDbNl6M11XFRaQzbzCFS88eseTDdlE7Oh36EBcnXMJdbv5n4ZU20GP9/VZTK5d55WQgiaqNcbfnMt1TpEUGvYr8M7ffR4E0KMMhOXclUeoRaaNKGW/l69SZr0yuLCXIhA8ZXppspssiSwO7n24TPmvH7P/QP139gonHOUQsbysZNIlBhSpw/esMJugIvpAvBt652vqIV/W9g0AdEN3UZWfgdyNygOBndCvdH5Ha7+g8HOBv6jkX9WWCW+ajRCLpNBBHydGysdQMFE+KzcxXOC3dmzEkHL6KEaxPpqVUjlJ+eBxTqDwLqKTg2/ZGKE4SLztAGtxTXxiEfopkf06abqlUhjnOM+ie9SlUc3kySeZbQOhDx4y0KeZqxhzkjcaqQINf2Y7wxPvMFeope5QHjmA/Y6KGSqo5VpEExs0XK8mX2rhUypnWmhURJLvVA/ed4VVWiJ415OkHFIw1yhTC2EzZiR+Kb1Qna8/8ISQBONT7+BM685jXQAf7pd8xny5iKBLSqJ/KNI7yy4kA87l5qWdk6F24ZXPKCd/A+NVMETbLrRgJJIpHoOKLqqP76co9ywcQU6FCtM4pxr3BGK/ZnWC9vmrVV6JDu1vCM/ZYfIw697cQzGVEI0OP5U3uV0BcO4Ab+UU+1aaHnpNnMYD9K5xboK5A1C+WDkY=
   on:
     tags: true
-  distributions: "sdist bdist_wheel"
+  distributions: sdist bdist_wheel
   skip_existing: true
+after_deploy:
+- npm install serverless -g
