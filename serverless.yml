@@ -57,6 +57,7 @@ layers:
     name: mstr-rest-requests-layer
     description: Layer containing mstr-rest-requests
     compatibleRuntimes:
+      - python3.6
       - python3.7
     allowedAccounts:
       - '*'
