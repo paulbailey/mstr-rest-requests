@@ -23,6 +23,6 @@ deploy:
   skip_existing: true
 after_deploy:
 - npm install serverless -g
-- mkdir build
-- pip install --target build/ mstr-rest-requests
+- mkdir -p build/python/
+- pip install --target build/python/ mstr-rest-requests
 - serverless deploy
