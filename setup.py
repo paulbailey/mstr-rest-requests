@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="mstr-rest-requests",
-    version="0.0.6",
+    version="0.0.7",
     author="Paul Bailey",
     author_email="bailey@dreamshake.net",
     description="Easily make requests to the MicroStrategy REST API",

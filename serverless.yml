@@ -20,6 +20,8 @@ provider:
   stage: prod
   region: eu-west-2
 
+  bucket: mstr-rest-requests-layer
+
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
 #    - Effect: "Allow"
