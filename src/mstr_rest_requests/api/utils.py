@@ -1,4 +1,4 @@
-from mstr_rest_requests.exceptions import SessionException
+from src.mstr_rest_requests.exceptions import SessionException
 
 
 def check_valid_session(f, *args, **kwargs):

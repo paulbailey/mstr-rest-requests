@@ -1,12 +1,21 @@
-from mstr_rest_requests import MSTRRESTSession
-from mstr_rest_requests import exceptions
+from src.mstr_rest_requests import MSTRRESTSession
+from src.mstr_rest_requests import exceptions
 
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def session():
     return MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
+
+
+@pytest.fixture(scope="function")
+def logged_in_session():
+    session = MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
+    session.login()
+    assert session.has_session() is True
+    yield session
+    session.logout()
 
 
 def test_login(session):
@@ -17,20 +26,14 @@ def test_login(session):
     assert session.has_session() is False
 
 
-def test_prolong_session(session):
-    session.login()
-    assert session.has_session() is True
-    response = session.put_sessions()
+def test_prolong_session(logged_in_session):
+    response = logged_in_session.put_sessions()
     assert response.status_code == 204
-    session.logout()
 
 
-def test_get_session_status(session):
-    session.login()
-    assert session.has_session() is True
-    response = session.get_sessions()
+def test_get_session_status(logged_in_session):
+    response = logged_in_session.get_sessions()
     assert response.status_code == 200
-    session.logout()
 
 
 def test_get_session_failure(session):
@@ -41,9 +44,7 @@ def test_get_session_failure(session):
         session.get_sessions()
 
 
-def test_remote_session_issue(session):
-    session.login()
-    assert session.has_session() is True
-    session.headers.update({'x-mstr-authtoken': "You're my wife now"})
+def test_remote_session_issue(logged_in_session):
+    logged_in_session.headers.update({'x-mstr-authtoken': "You're my wife now"})
     with pytest.raises(exceptions.MSTRException):
-        session.get_sessions()
+        logged_in_session.get_sessions()

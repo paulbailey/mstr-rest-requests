@@ -1,7 +1,7 @@
 import pytest
 
-from mstr_rest_requests import MSTRRESTSession
-from mstr_rest_requests.exceptions import ResourceNotFoundException
+from src.mstr_rest_requests import MSTRRESTSession
+from src.mstr_rest_requests.exceptions import ResourceNotFoundException
 
 
 def test_unimplemented_method():
