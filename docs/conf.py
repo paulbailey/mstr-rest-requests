@@ -1,3 +1,4 @@
+from ..src.mstr_rest_requests import VERSION
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -19,14 +20,14 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'MSTR Rest Requests'
+project = 'mstr-rest-requests'
 copyright = '2019, Paul Bailey'
 author = 'Paul Bailey'
 
 # The short X.Y version
-version = ''
+version = VERSION
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = VERSION
 
 
 # -- General configuration ---------------------------------------------------

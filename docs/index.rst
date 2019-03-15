@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MSTR Rest Requests's documentation!
+Welcome to mstr-rest-requests's documentation!
 ==============================================
 
 .. toctree::
