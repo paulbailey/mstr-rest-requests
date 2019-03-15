@@ -20,5 +20,3 @@ deploy:
       tags: true
     distributions: sdist bdist_wheel
     skip_existing: true
-  - provider: script
-    script: bash scripts/deploy_serverless.sh
