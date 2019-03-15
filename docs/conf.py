@@ -1,4 +1,3 @@
-from ..src.mstr_rest_requests import VERSION
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -25,9 +24,9 @@ copyright = '2019, Paul Bailey'
 author = 'Paul Bailey'
 
 # The short X.Y version
-version = VERSION
+version = '0.0.8'
 # The full version, including alpha/beta/rc tags
-release = VERSION
+release = ''
 
 
 # -- General configuration ---------------------------------------------------
