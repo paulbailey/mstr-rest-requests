@@ -1,5 +1,5 @@
-from src.mstr_rest_requests import MSTRRESTSession
-from src.mstr_rest_requests import exceptions
+from mstr.requests import MSTRRESTSession
+from mstr.requests.rest import exceptions
 
 import pytest
 

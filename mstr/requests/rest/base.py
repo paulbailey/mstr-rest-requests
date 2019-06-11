@@ -1,6 +1,6 @@
 from requests_toolbelt.sessions import BaseUrlSession
 
-from . import exceptions
+from mstr.requests.rest import exceptions
 
 MSTR_AUTH_TOKEN = 'X-MSTR-AuthToken'
 MSTR_PROJECT_ID_HEADER = 'X-MSTR-ProjectID'
