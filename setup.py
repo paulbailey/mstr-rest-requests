@@ -6,5 +6,5 @@ setuptools.setup(
     tests_require="pytest",
     version=VERSION,
     install_requires = ["requests-toolbelt"],
-packages = ['mstr'],
+packages = ['mstr', 'mstr.requests'],
 )
