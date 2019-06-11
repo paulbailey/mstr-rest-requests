@@ -5,6 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [packages]
 mstr-rest-requests = {editable = true,path = "."}
