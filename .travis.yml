@@ -4,6 +4,7 @@ python:
 - '3.7'
 install:
 - pipenv install --dev
+- pipenv install -e .
 script:
 - pytest
 deploy:
