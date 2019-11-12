@@ -2,6 +2,8 @@
 
 A extension to the excellent `requests` `Session` object, to enable more straightforward interaction with MicroStrategy's REST API.
 
+[![Build status](https://travis-ci.org/paulbailey/mstr-rest-requests.svg?branch=master)](https://travis-ci.org/paulbailey/mstr-rest-requests/)
+
 ## Usage
 
 ### Installation
