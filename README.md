@@ -8,7 +8,7 @@ Simply install the package however you normally install them, for example:
 
 `pip install mstr-rest-requests`
 
-Here's how to get an authenticated session (currently only standard and anonymous authentication are supported:
+Here's how to get an authenticated session (currently only standard and anonymous authentication are supported):
 
 ```
 from mstr.requests import MSTRRESTSession
