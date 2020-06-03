@@ -2,7 +2,7 @@
 
 A extension to the excellent `requests` `Session` object, to enable more straightforward interaction with MicroStrategy's REST API.
 
-[![Build status](https://travis-ci.org/paulbailey/mstr-rest-requests.svg?branch=master)](https://travis-ci.org/paulbailey/mstr-rest-requests/)
+![Python package](https://github.com/paulbailey/mstr-rest-requests/workflows/Python%20package/badge.svg)
 
 ## Usage
 
