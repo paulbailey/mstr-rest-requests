@@ -28,8 +28,10 @@ class MSTRBaseSession(BaseUrlSession):
             headers.update({
                 MSTR_PROJECT_ID_HEADER: project_id
             })
+        
+        kwargs['headers'] = headers
 
-        response = super(MSTRBaseSession, self).request(method, url, headers=headers, *args, **kwargs)
+        response = super(MSTRBaseSession, self).request(method, url, *args, **kwargs)
 
         if not response.ok and response.headers['content-type'] == 'application/json':
             try:
