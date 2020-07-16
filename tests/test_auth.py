@@ -1,3 +1,4 @@
+from mstr.requests import AuthenticatedMSTRRESTSession
 from mstr.requests import MSTRRESTSession
 from mstr.requests.rest import exceptions
 
@@ -6,12 +7,16 @@ import pytest
 
 @pytest.fixture(scope="function")
 def session():
-    return MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
+    return MSTRRESTSession(
+        base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
+    )
 
 
 @pytest.fixture(scope="function")
 def logged_in_session():
-    session = MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
+    session = MSTRRESTSession(
+        base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
+    )
     session.login()
     assert session.has_session() is True
     yield session
@@ -45,6 +50,13 @@ def test_get_session_failure(session):
 
 
 def test_remote_session_issue(logged_in_session):
-    logged_in_session.headers.update({'x-mstr-authtoken': "You're my wife now"})
+    logged_in_session.headers.update({"x-mstr-authtoken": "You're my wife now"})
     with pytest.raises(exceptions.MSTRException):
         logged_in_session.get_sessions()
+
+
+def test_context_manager():
+    with AuthenticatedMSTRRESTSession(
+        base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
+    ) as session:
+        assert session.has_session() is True
