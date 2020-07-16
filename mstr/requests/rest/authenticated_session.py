@@ -11,5 +11,5 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         self.login(self._username, self._password)
         return self
 
-    def __exit__(self):
+    def __exit__(self, t, v, tb):
         self.logout()
