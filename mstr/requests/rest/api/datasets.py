@@ -21,23 +21,26 @@ class DatasetStatus:
 
 
 class DatasetsMixin:
-
     @check_valid_session
     def get_datasets_instance_status(self, project_id, dataset_id, instance_id):
-        return self.get('datasets/{}/instances/{}/status'.format(dataset_id, instance_id), project_id=project_id)
+        return self.get(
+            "datasets/{}/instances/{}/status".format(dataset_id, instance_id),
+            project_id=project_id,
+        )
 
     # "Friendly" method aliases
     def get_dataset_status(self, project_id, dataset_id, instance_id):
-        return DatasetStatusResponse(self.get_datasets_instance_status(project_id, dataset_id, instance_id))
+        return DatasetStatusResponse(
+            self.get_datasets_instance_status(project_id, dataset_id, instance_id)
+        )
 
 
 class DatasetStatusResponse:
-
     def __init__(self, response):
-        if response.headers['content-type'] == 'application/json':
+        if response.headers["content-type"] == "application/json":
             json = response.json()
-            self.code = json.get('code', -1)
-            self.message = json.get('message', '')
+            self.code = json.get("code", -1)
+            self.message = json.get("message", "")
         else:
             self.code = -1
-            self.message = 'No error message found'
+            self.message = "No error message found"

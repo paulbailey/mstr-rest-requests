@@ -6,5 +6,6 @@ def check_valid_session(f, *args, **kwargs):
         if self.has_session():
             return f(self, *args, **kwargs)
         else:
-            raise SessionException('There is no valid session available.')
+            raise SessionException("There is no valid session available.")
+
     return check
