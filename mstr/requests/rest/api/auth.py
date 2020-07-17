@@ -5,7 +5,7 @@ class AuthMixin:
             data = {"username": username, "password": password, "loginMode": 1}
         else:
             data = {"loginMode": 8}
-        login_response = self.post("auth/login", data=data)
+        login_response = self.post("auth/login", json=data)
         if login_response.status_code != 204:
             login_response.raise_for_status()
         return login_response
