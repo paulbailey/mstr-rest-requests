@@ -16,8 +16,18 @@ class AuthMixin:
             self.destroy_auth_token()
 
     # "Friendly" method aliases
-    def login(self, username=None, password=None):
+    def login(self, username: str = None, password: str = None):
+        """Logs in to MicroStrategy REST API.
+        
+        These credentials must be using MicroStrategy's standard authentication. 
+        
+        If no credentials are provided, the session will attempt to establish an anonymous connection.
+
+        Returns:
+            A ``requests`` response object with result of the login request
+        """
         return self.post_login(username, password)
 
     def logout(self):
+        """Closes the REST API session associated with the session object."""
         return self.post_logout()
