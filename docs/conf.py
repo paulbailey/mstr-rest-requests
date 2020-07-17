@@ -15,21 +15,19 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../"))
+sys.path.insert(0, os.path.abspath("../src/"))
 
 
 # -- Project information -----------------------------------------------------
-
-from mstr.requests import VERSION
 
 project = "mstr-rest-requests"
 copyright = "2020, Paul Bailey"
 author = "Paul Bailey"
 
 # The short X.Y version
-version = VERSION
+version = 0.11
 # The full version, including alpha/beta/rc tags
-release = VERSION
+release = 0.11.0
 
 
 # -- General configuration ---------------------------------------------------
