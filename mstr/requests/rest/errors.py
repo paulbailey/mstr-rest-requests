@@ -13,6 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+# Sourced from https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/ReferenceFiles/reference/com/microstrategy/utils/localization/WebAPIErrorCodes.html
 iserver_error_codes = {
     -2147181482: "AE_DISABLEMERGEDE",
     -2147211493: "AE_E_ANASQL",
