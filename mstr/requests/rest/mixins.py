@@ -45,3 +45,9 @@ class SessionPersistenceMixin:
             self.headers.update(input_data["headers"])
         except KeyError as e:
             raise SessionException(e)
+
+    @classmethod
+    def from_dict(cls, session_dict: dict):
+        session = cls(base_url=session_dict.get("base_url"))
+        session.update_from_json(session_dict)
+        return session

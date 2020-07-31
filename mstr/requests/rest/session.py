@@ -14,30 +14,13 @@
 #    limitations under the License.
 
 from .base import MSTRBaseSession
-from .exceptions import (
-    ExecutionCancelledException,
-    ExecutionFailedException,
-    MSTRUnknownException,
-)
-from .execution_status import CUBE_RUNNING, CUBE_PUBLISHED, CUBE_PREPARING
+from .exceptions import MSTRUnknownException
 from .mixins import SessionPersistenceMixin
-from mstr.requests.rest.api import (
-    AuthMixin,
-    SessionsMixin,
-    ObjectsMixin,
-    DatasetsMixin,
-    CubesMixin,
-)
+from mstr.requests.rest.api import AuthMixin, SessionsMixin, ProjectsMixin
 
 
 class MSTRRESTSession(
-    ObjectsMixin,
-    DatasetsMixin,
-    CubesMixin,
-    AuthMixin,
-    SessionsMixin,
-    SessionPersistenceMixin,
-    MSTRBaseSession,
+    ProjectsMixin, AuthMixin, SessionsMixin, SessionPersistenceMixin, MSTRBaseSession,
 ):
     pass
 
