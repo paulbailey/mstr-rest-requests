@@ -21,14 +21,15 @@ from requests.utils import dict_from_cookiejar, cookiejar_from_dict
 
 
 class SessionPersistenceMixin:
+    def dict(self):
+        return {
+            "base_url": self.base_url,
+            "cookies": dict_from_cookiejar(self.cookies),
+            "headers": self.headers,
+        }
+
     def json(self):
-        return json.dumps(
-            {
-                "base_url": self.base_url,
-                "cookies": dict_from_cookiejar(self.cookies),
-                "headers": self.headers,
-            }
-        )
+        return json.dumps(self.dict())
 
     def update_from_json(self, data):
         if type(data) is dict:
