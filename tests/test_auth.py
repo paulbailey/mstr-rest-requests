@@ -60,3 +60,9 @@ def test_context_manager():
         base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
     ) as session:
         assert session.has_session() is True
+
+
+def test_destroy_auth_token():
+    session = MSTRRESTSession()
+    session.destroy_auth_token()
+    assert True
