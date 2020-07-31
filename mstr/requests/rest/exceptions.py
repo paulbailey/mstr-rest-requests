@@ -44,10 +44,3 @@ class ExecutionCancelledException(MSTRException):
 class MSTRUnknownException(MSTRException):
     pass
 
-
-class ExecutionFailedException(MSTRException):
-    pass
-
-
-class ResourceNotFoundException(MSTRException):
-    pass
