@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mstr-rest-requests"
-version = "0.11.1"
+version = "0.12.2"
 description = "Easily make requests of the MicroStrategy REST API"
 authors = ["Paul Bailey <bailey@dreamshake.net>"]
 license = "Apache-2.0"
@@ -17,8 +17,8 @@ requests-toolbelt = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
-sphinx = "^3.1.2"
-pytest-cov = "^2.10.0"
+sphinx = "^3.2.1"
+pytest-cov = "^2.10.1"
 
 [build-system]
 requires = ["poetry>=0.12"]

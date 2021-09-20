@@ -15,12 +15,20 @@
 
 
 class AuthMixin:
-    def post_login(self, username=None, password=None):
+    def post_login(self, username=None, password=None, application_type: int = 8):
         """``POST``s a login request."""
         if username is not None and password is not None:
-            data = {"username": username, "password": password, "loginMode": 1}
+            data = {
+                "username": username,
+                "password": password,
+                "loginMode": 1,
+                "applicationType": application_type,
+            }
         else:
-            data = {"loginMode": 8}
+            data = {
+                "loginMode": 8,
+                "applicationType": application_type,
+            }
         login_response = self.post("auth/login", json=data)
         if login_response.status_code != 204:
             login_response.raise_for_status()
@@ -32,17 +40,19 @@ class AuthMixin:
             self.destroy_auth_token()
 
     # "Friendly" method aliases
-    def login(self, username: str = None, password: str = None):
+    def login(
+        self, username: str = None, password: str = None, application_type: int = 8
+    ):
         """Logs in to MicroStrategy REST API.
-        
-        These credentials must be using MicroStrategy's standard authentication. 
-        
+
+        These credentials must be using MicroStrategy's standard authentication.
+
         If no credentials are provided, the session will attempt to establish an anonymous connection.
 
         Returns:
             A ``requests`` response object with result of the login request
         """
-        return self.post_login(username, password)
+        return self.post_login(username, password, application_type)
 
     def logout(self):
         """Closes the REST API session associated with the session object."""

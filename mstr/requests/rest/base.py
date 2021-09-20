@@ -67,6 +67,6 @@ class MSTRBaseSession(BaseUrlSession):
                 )
         if response.ok:
             for key, value in response.headers.items():
-                if key.startswith("X-MSTR"):
+                if key.upper().startswith("X-MSTR"):
                     self.headers.update({key: value})
         return response
