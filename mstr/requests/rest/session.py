@@ -41,14 +41,16 @@ class MSTRRESTSession(
 ):
     pass
 
-    def execute_dataset_object(self, project_id, object_id):
+    def execute_dataset_object(self, project_id: str, object_id: str):
         response = self.post(
             "cubes/{}".format(object_id), headers={"X-MSTR-ProjectID": project_id}
         )
         if response.ok:
             return response.json()["instanceId"]
 
-    def get_dataset_instance_status(self, project_id, object_id, instance_id):
+    def get_dataset_instance_status(
+        self, project_id: str, object_id: str, instance_id: str
+    ):
         response = self.get(
             "datasets/{}/instances/{}/status".format(object_id, instance_id),
             headers={"X-MSTR-ProjectID": project_id},

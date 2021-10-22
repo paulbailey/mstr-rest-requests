@@ -32,7 +32,15 @@ class MSTRBaseSession(BaseUrlSession):
         except KeyError:
             pass
 
-    def request(self, method, url, include_auth=True, project_id=None, *args, **kwargs):
+    def request(
+        self,
+        method: str,
+        url: str,
+        include_auth=True,
+        project_id: str = None,
+        *args,
+        **kwargs
+    ):
 
         headers = kwargs.get("headers", {})
 

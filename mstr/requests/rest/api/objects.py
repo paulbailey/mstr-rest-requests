@@ -37,16 +37,18 @@ class Object:
 
 class ObjectsMixin:
     @check_valid_session
-    def get_objects(self, project_id, object_id, object_type=ObjectTypes.REPORT):
+    def get_objects(
+        self, project_id: str, object_id: str, object_type=ObjectTypes.REPORT
+    ):
         return self.get(
             "objects/{}?type={}".format(object_id, object_type), project_id=project_id
         )
 
     # "Friendly" method aliases
-    def get_object_metadata(self, project_id, object_id, object_type):
+    def get_object_metadata(self, project_id: str, object_id: str, object_type: int):
         return self.get_object_metadata(project_id, object_id, object_type)
 
-    def get_object_details(self, project_id, object_id, object_type):
+    def get_object_details(self, project_id: str, object_id: str, object_type: int):
         obj_json = self.get_objects(project_id, object_id, object_type).json()
 
         ancestors = obj_json.get("ancestors", [])

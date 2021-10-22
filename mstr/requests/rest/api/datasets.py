@@ -37,14 +37,16 @@ class DatasetStatus:
 
 class DatasetsMixin:
     @check_valid_session
-    def get_datasets_instance_status(self, project_id, dataset_id, instance_id):
+    def get_datasets_instance_status(
+        self, project_id: str, dataset_id: str, instance_id: str
+    ):
         return self.get(
             "datasets/{}/instances/{}/status".format(dataset_id, instance_id),
             project_id=project_id,
         )
 
     # "Friendly" method aliases
-    def get_dataset_status(self, project_id, dataset_id, instance_id):
+    def get_dataset_status(self, project_id: str, dataset_id: str, instance_id: str):
         return DatasetStatusResponse(
             self.get_datasets_instance_status(project_id, dataset_id, instance_id)
         )

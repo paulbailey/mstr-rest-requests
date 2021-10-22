@@ -13,6 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from typing import Union
 from .exceptions import SessionException
 
 import json
@@ -30,7 +31,7 @@ class SessionPersistenceMixin:
             }
         )
 
-    def update_from_json(self, data):
+    def update_from_json(self, data: Union[dict, str]):
         if type(data) is dict:
             input_data = data
         elif type(data) is str:

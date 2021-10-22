@@ -15,7 +15,9 @@
 
 
 class AuthMixin:
-    def post_login(self, username=None, password=None, application_type: int = 8):
+    def post_login(
+        self, username: str = None, password: str = None, application_type: int = 8
+    ):
         """``POST``s a login request."""
         if username is not None and password is not None:
             data = {
