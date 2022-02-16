@@ -59,3 +59,11 @@ class AuthMixin:
     def logout(self):
         """Closes the REST API session associated with the session object."""
         return self.post_logout()
+
+    def delegate(self, identity_token: str):
+        delegate_response = self.post(
+            "auth/delegate", json={"loginMode": -1, "identityToken": identity_token}
+        )
+        if delegate_response.status_code != 204:
+            delegate_response.raise_for_status()
+        return delegate_response
