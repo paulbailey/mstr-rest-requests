@@ -15,3 +15,4 @@
 
 from .auth import AuthMixin
 from .sessions import SessionsMixin
+from .projects import ProjectsMixin
