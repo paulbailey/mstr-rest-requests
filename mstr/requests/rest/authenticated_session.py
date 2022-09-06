@@ -19,14 +19,27 @@ from .session import MSTRRESTSession
 class AuthenticatedMSTRRESTSession(MSTRRESTSession):
     """A context manager for sessions interacting with the MicroStrategy REST API."""
 
-    def __init__(self, base_url, username=None, password=None):
+    def __init__(
+        self,
+        base_url: str,
+        username: str = None,
+        password: str = None,
+        identity_token: str = None,
+        application_type: int = 8,
+    ):
         super(AuthenticatedMSTRRESTSession, self).__init__(base_url)
         self._username = username
         self._password = password
+        self._identity_token = identity_token
+        self._application_type = application_type
 
     def __enter__(self):
-        self.login(self._username, self._password)
+        if self._identity_token is not None:
+            self.delegate(self._identity_token)
+        else:
+            self.login(self._username, self._password, self._application_type)
         return self
 
     def __exit__(self, t, v, tb):
-        self.logout()
+        if self._identity_token is None:
+            self.logout()

@@ -13,6 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from typing import Union
 from .exceptions import SessionException
 
 import json
@@ -25,13 +26,13 @@ class SessionPersistenceMixin:
         return {
             "base_url": self.base_url,
             "cookies": dict_from_cookiejar(self.cookies),
-            "headers": self.headers,
+            "headers": dict(self.headers),
         }
 
     def json(self):
         return json.dumps(self.dict())
 
-    def update_from_json(self, data):
+    def update_from_json(self, data: Union[dict, str]):
         if type(data) is dict:
             input_data = data
         elif type(data) is str:

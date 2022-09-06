@@ -17,7 +17,7 @@ from .errors import iserver_error_codes
 
 
 class MSTRException(Exception):
-    def __init__(self, message=None, *args, **kwargs):
+    def __init__(self, message: str = None, *args, **kwargs):
         self.code = kwargs.get("code", "N/A")
         self.message = "{}: {}.".format(self.code, message)
         self.iserver_code = kwargs.get("iServerCode", None)
