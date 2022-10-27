@@ -45,4 +45,3 @@ jobs:
           flags: unittests
           env_vars: PYTHON
           fail_ci_if_error: false
-          path_to_write_report: ./codecov_report.gz
