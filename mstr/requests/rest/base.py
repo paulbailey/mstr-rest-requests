@@ -13,6 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import warnings
 from requests_toolbelt.sessions import BaseUrlSession
 
 from mstr.requests.rest import exceptions
@@ -39,8 +40,14 @@ class MSTRBaseSession(BaseUrlSession):
         include_auth=True,
         project_id: str = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
+
+        # Warn if the session and request in combination contain an extra `//`; that's probably in error.
+        if url.count("//") > 1:
+            warnings.warn(
+                f"Your fully composed request ({url}) contains a `//` in the path, which is probably an error."
+            )
 
         headers = kwargs.get("headers", {})
 
