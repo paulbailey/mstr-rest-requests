@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mstr-rest-requests"
-version = "0.14.0"
+version = "0.14.1"
 description = "Easily make requests of the MicroStrategy REST API"
 authors = ["Paul Bailey <bailey@dreamshake.net>"]
 license = "Apache-2.0"
