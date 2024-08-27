@@ -17,7 +17,7 @@ requests-toolbelt = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
-sphinx = "^3.2.1"
+sphinx = "^8.0.0"
 pytest-cov = "^5.0.0"
 mypy = "^0.910"
 types-requests = "^2.25.11"
