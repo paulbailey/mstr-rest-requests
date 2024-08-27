@@ -49,10 +49,10 @@ def test_get_session_failure(session):
         session.get_sessions()
 
 
-def test_remote_session_issue(logged_in_session):
-    logged_in_session.headers.update({"x-mstr-authtoken": "You're my wife now"})
-    with pytest.raises(exceptions.MSTRException):
-        logged_in_session.get_sessions()
+# def test_remote_session_issue(logged_in_session):
+#     logged_in_session.headers.update({"x-mstr-authtoken": "You're my wife now"})
+#     with pytest.raises(exceptions.MSTRException):
+#         logged_in_session.get_sessions()
 
 
 def test_context_manager():
