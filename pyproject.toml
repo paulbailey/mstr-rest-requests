@@ -15,7 +15,7 @@ python = ">=3.9, <4"
 requests = "*" 
 requests-toolbelt = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "*"
 sphinx = "^3.2.1"
 pytest-cov = "^6.0.0"
