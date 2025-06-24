@@ -31,5 +31,5 @@ include = ["mstr"]
 include = ["mstr"]
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
