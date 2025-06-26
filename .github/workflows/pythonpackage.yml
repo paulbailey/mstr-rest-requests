@@ -35,4 +35,5 @@ jobs:
           files: ./coverage.xml
           flags: unittests
           env_vars: PYTHON
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
