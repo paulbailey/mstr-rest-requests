@@ -18,7 +18,7 @@ Repository = "https://github.com/paulbailey/mstr-rest-requests"
 dev = [
     "pytest",
     "sphinx>=3.2.1,<4",
-    "pytest-cov>=6.0.0,<7",
+    "pytest-cov>=7,<8",
     "mypy>=1.0.0,<2",
     "types-requests>=2.25.11,<3",
     "black>=25.0.0,<26",
