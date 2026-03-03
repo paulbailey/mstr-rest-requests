@@ -17,24 +17,53 @@ from .utils import check_valid_session
 
 
 class SessionsMixin:
+    """Mixin providing MicroStrategy session-management endpoints."""
+
     @check_valid_session
     def put_sessions(self):
+        """Prolong the session via ``PUT /sessions``.
+
+        Returns:
+            A :class:`requests.Response`.
+        """
         return self.put("sessions")
 
     @check_valid_session
     def get_sessions_userinfo(self):
+        """Retrieve user information via ``GET /sessions/userInfo``.
+
+        Returns:
+            A :class:`requests.Response` whose JSON body contains user
+            details.
+        """
         return self.get("sessions/userInfo")
 
     @check_valid_session
     def get_sessions(self):
+        """Retrieve session status via ``GET /sessions``.
+
+        Returns:
+            A :class:`requests.Response`.
+        """
         return self.get("sessions")
 
-    # "Friendly" method aliases
     def extend_session(self):
+        """Prolong the current session.
+
+        Convenience alias for :meth:`put_sessions`.
+        """
         return self.put_sessions()
 
     def get_userinfo(self):
+        """Get the current user's information.
+
+        Convenience alias for :meth:`get_sessions_userinfo`.
+        """
         return self.get_sessions_userinfo()
 
     def get_session_info(self):
+        """Get the current session's status.
+
+        Convenience alias for :meth:`get_sessions`.
+        """
         return self.get_sessions()

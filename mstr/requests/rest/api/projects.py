@@ -17,12 +17,24 @@ from .utils import check_valid_session
 
 
 class ProjectsMixin:
+    """Mixin providing MicroStrategy project-related helpers."""
+
     @check_valid_session
     def get_projects(self):
+        """Fetch the list of projects via ``GET /projects``.
+
+        Returns:
+            A list of project dicts as returned by the REST API.
+        """
         response = self.get("projects").json()
         return response
 
     def load_projects(self):
+        """Fetch projects and populate :attr:`projects_by_name` / :attr:`projects_by_id` look-ups.
+
+        After calling this method you can resolve project names to IDs
+        with :meth:`get_project_id`.
+        """
         response = self.get_projects()
         projects_by_name = dict()
         projects_by_id = dict()
@@ -33,4 +45,11 @@ class ProjectsMixin:
         self.projects_by_id = projects_by_id
 
     def get_project_id(self, project_name):
+        """Return the project ID for *project_name*, or ``None`` if not found.
+
+        :meth:`load_projects` must be called first.
+
+        Args:
+            project_name: The display name of the project.
+        """
         return self.projects_by_name.get(project_name, None)

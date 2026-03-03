@@ -24,10 +24,21 @@ MSTR_HEADER_PREFIX = "X-MSTR"
 
 
 class MSTRBaseSession(BaseUrlSession):
-    def has_session(self):
+    """Low-level session that manages auth-token headers and error translation.
+
+    Extends :class:`~requests_toolbelt.sessions.BaseUrlSession` so that every
+    request is automatically scoped to the MicroStrategy REST API base URL.
+    Response headers beginning with ``X-MSTR`` are captured and stored on the
+    session, and JSON error payloads are translated into
+    :mod:`~mstr.requests.rest.exceptions` types.
+    """
+
+    def has_session(self) -> bool:
+        """Return ``True`` if the session holds a valid auth token."""
         return MSTR_AUTH_TOKEN in self.headers
 
-    def destroy_auth_token(self):
+    def destroy_auth_token(self) -> None:
+        """Remove the ``X-MSTR-AuthToken`` header, if present."""
         try:
             del self.headers[MSTR_AUTH_TOKEN]
         except KeyError:
@@ -42,6 +53,26 @@ class MSTRBaseSession(BaseUrlSession):
         *args,
         **kwargs,
     ):
+        """Send a request, injecting MicroStrategy headers automatically.
+
+        Args:
+            method: HTTP method (``GET``, ``POST``, etc.).
+            url: URL path relative to the session's *base_url*.
+            include_auth: Attach the ``X-MSTR-AuthToken`` header when
+                ``True`` (the default).
+            project_id: If given, sent as the ``X-MSTR-ProjectID`` header.
+            *args: Passed through to :meth:`requests.Session.request`.
+            **kwargs: Passed through to :meth:`requests.Session.request`.
+
+        Returns:
+            A :class:`requests.Response`.
+
+        Raises:
+            LoginFailureException: On ``ERR001`` / ``ERR003`` responses.
+            SessionException: On ``ERR009`` responses.
+            ResourceNotFoundException: On ``ERR004`` responses.
+            MSTRException: On any other MicroStrategy error response.
+        """
 
         # Warn if the session and request in combination contain an extra `//`; that's probably in error.
         if url.count("//") > 1:

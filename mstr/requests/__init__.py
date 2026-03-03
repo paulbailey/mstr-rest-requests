@@ -13,5 +13,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""Public API for mstr-rest-requests.
+
+The two main entry points are:
+
+* :class:`MSTRRESTSession` -- manual session lifecycle (login / logout).
+* :class:`AuthenticatedMSTRRESTSession` -- context-managed auto login/logout.
+
+The :data:`Credential` type alias is re-exported here so consumers can
+type-hint their own callable credential providers.
+"""
+
+from .rest.authenticated_session import AuthenticatedMSTRRESTSession, Credential
 from .rest.session import MSTRRESTSession
-from .rest.authenticated_session import AuthenticatedMSTRRESTSession
+
+__all__ = ["AuthenticatedMSTRRESTSession", "Credential", "MSTRRESTSession"]

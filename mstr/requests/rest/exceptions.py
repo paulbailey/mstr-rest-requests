@@ -17,6 +17,16 @@ from .errors import iserver_error_codes
 
 
 class MSTRException(Exception):
+    """Base exception for all MicroStrategy REST API errors.
+
+    Attributes:
+        code: The MicroStrategy error code (e.g. ``ERR001``), or ``"N/A"``.
+        message: Human-readable error description.
+        iserver_code: Optional I-Server error code, when present in the
+            API response.
+        iserver_message: Looked-up description for *iserver_code*.
+    """
+
     def __init__(self, message: str = None, *args, **kwargs):
         self.code = kwargs.get("code", "N/A")
         self.message = "{}: {}.".format(self.code, message)
@@ -30,20 +40,20 @@ class MSTRException(Exception):
 
 
 class LoginFailureException(MSTRException):
-    pass
+    """Raised when authentication fails (``ERR001`` or ``ERR003``)."""
 
 
 class SessionException(MSTRException):
-    pass
+    """Raised on session-related errors (``ERR009``) or missing auth tokens."""
 
 
 class ExecutionCancelledException(MSTRException):
-    pass
+    """Raised when a report or cube execution is cancelled."""
 
 
 class MSTRUnknownException(MSTRException):
-    pass
+    """Raised when the error response lacks a recognised ``code`` field."""
 
 
 class ResourceNotFoundException(MSTRException):
-    pass
+    """Raised when a requested resource does not exist (``ERR004``)."""

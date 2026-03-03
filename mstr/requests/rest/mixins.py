@@ -22,17 +22,38 @@ from requests.utils import dict_from_cookiejar, cookiejar_from_dict
 
 
 class SessionPersistenceMixin:
-    def dict(self):
+    """Mixin that adds serialisation and deserialisation to a session.
+
+    Allows a session (including its auth token and cookies) to be exported
+    as JSON and later restored, which is useful for passing authenticated
+    sessions between processes.
+    """
+
+    def dict(self) -> dict:
+        """Return a dict snapshot of the session state.
+
+        The dict contains ``base_url``, ``cookies``, and ``headers``.
+        """
         return {
             "base_url": self.base_url,
             "cookies": dict_from_cookiejar(self.cookies),
             "headers": dict(self.headers),
         }
 
-    def json(self):
+    def json(self) -> str:
+        """Return a JSON string snapshot of the session state."""
         return json.dumps(self.dict())
 
-    def update_from_json(self, data: Union[dict, str]):
+    def update_from_json(self, data: Union[dict, str]) -> None:
+        """Restore session state from a dict or JSON string.
+
+        Args:
+            data: A dict (or JSON string) previously produced by
+                :meth:`dict` or :meth:`json`.
+
+        Raises:
+            SessionException: If required keys are missing from *data*.
+        """
         if type(data) is dict:
             input_data = data
         elif type(data) is str:
@@ -49,6 +70,14 @@ class SessionPersistenceMixin:
 
     @classmethod
     def from_dict(cls, session_dict: dict):
+        """Create a new session instance from a dict snapshot.
+
+        Args:
+            session_dict: A dict previously produced by :meth:`dict`.
+
+        Returns:
+            A new session with state restored from *session_dict*.
+        """
         session = cls(base_url=session_dict.get("base_url"))
         session.update_from_json(session_dict)
         return session
