@@ -17,6 +17,7 @@ from .base import MSTRBaseSession
 from .mixins import SessionPersistenceMixin
 from mstr.requests.rest.api import (
     AuthMixin,
+    ProjectsMixin,
     SessionsMixin,
 )
 
@@ -24,7 +25,15 @@ from mstr.requests.rest.api import (
 class MSTRRESTSession(
     AuthMixin,
     SessionsMixin,
+    ProjectsMixin,
     SessionPersistenceMixin,
     MSTRBaseSession,
 ):
-    pass
+    """Full-featured session for the MicroStrategy REST API.
+
+    Combines authentication, session management, project helpers, and
+    serialisation into a single :class:`requests.Session` subclass.  Use
+    this class directly when you need manual control over the session
+    lifecycle, or prefer :class:`~mstr.requests.rest.authenticated_session.AuthenticatedMSTRRESTSession`
+    for automatic login/logout via a context manager.
+    """

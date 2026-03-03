@@ -23,10 +23,10 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          version: "0.10.7"
+          version: "0.10.8"
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
       - name: Test with pytest
         run: uv run pytest --cov=mstr --cov-branch --cov-report=xml
       - name: Upload coverage to Codecov

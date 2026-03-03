@@ -17,6 +17,8 @@ from mstr.requests.rest.exceptions import SessionException
 
 
 def check_valid_session(f, *args, **kwargs):
+    """Decorator that raises :class:`SessionException` if no auth token is present."""
+
     def check(self, *args, **kwargs):
         if self.has_session():
             return f(self, *args, **kwargs)

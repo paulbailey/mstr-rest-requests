@@ -15,15 +15,41 @@
 
 
 class AuthMixin:
+    """Mixin providing MicroStrategy REST API authentication methods."""
+
     def post_login(
         self, username: str = None, password: str = None, application_type: int = 8
     ):
-        """``POST``s a login request."""
+        """Create an authenticated session via ``POST /auth/login``.
+
+        The *login mode* is inferred from which arguments are supplied:
+
+        * ``username`` **and** ``password`` -- standard auth (mode 1).
+        * ``username`` only -- trusted / API-key auth (mode 4096).
+        * Neither -- anonymous auth (mode 8).
+
+        Args:
+            username: MicroStrategy username or API key.
+            password: Password for standard authentication.
+            application_type: MicroStrategy application type identifier.
+
+        Returns:
+            A :class:`requests.Response` for the login request.
+
+        Raises:
+            requests.HTTPError: If the server returns a non-204 status.
+        """
         if username is not None and password is not None:
             data = {
                 "username": username,
                 "password": password,
                 "loginMode": 1,
+                "applicationType": application_type,
+            }
+        elif username is not None and password is None:
+            data = {
+                "username": username,
+                "loginMode": 4096,
                 "applicationType": application_type,
             }
         else:
@@ -37,30 +63,51 @@ class AuthMixin:
         return login_response
 
     def post_logout(self):
+        """Close the session via ``POST /auth/logout``.
+
+        On success the auth token is removed from the session headers.
+        """
         logout_response = self.post("auth/logout")
         if logout_response.status_code == 204:
             self.destroy_auth_token()
 
-    # "Friendly" method aliases
     def login(
         self, username: str = None, password: str = None, application_type: int = 8
     ):
-        """Logs in to MicroStrategy REST API.
+        """Log in to the MicroStrategy REST API.
 
-        These credentials must be using MicroStrategy's standard authentication.
+        Convenience alias for :meth:`post_login`.  If no credentials are
+        provided the session attempts an anonymous connection.
 
-        If no credentials are provided, the session will attempt to establish an anonymous connection.
+        Args:
+            username: MicroStrategy username or API key.
+            password: Password for standard authentication.
+            application_type: MicroStrategy application type identifier.
 
         Returns:
-            A ``requests`` response object with result of the login request
+            A :class:`requests.Response` for the login request.
         """
         return self.post_login(username, password, application_type)
 
     def logout(self):
-        """Closes the REST API session associated with the session object."""
+        """Log out and close the current REST API session.
+
+        Convenience alias for :meth:`post_logout`.
+        """
         return self.post_logout()
 
     def delegate(self, identity_token: str):
+        """Authenticate with a delegated identity token via ``POST /auth/delegate``.
+
+        Args:
+            identity_token: A valid MicroStrategy identity token.
+
+        Returns:
+            A :class:`requests.Response` for the delegate request.
+
+        Raises:
+            requests.HTTPError: If the server returns a non-204 status.
+        """
         delegate_response = self.post(
             "auth/delegate", json={"loginMode": -1, "identityToken": identity_token}
         )
