@@ -1,5 +1,5 @@
-# This workflows will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+# This workflow uploads a Python package using uv when a release is created
+# For more information see: https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-python#publishing-to-pypi
 
 name: Upload Python Package
 
@@ -9,17 +9,17 @@ on:
 
 permissions:
   id-token: write
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v6
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           version: "0.10.7"
+          python-version: "3.13"
       - name: Build and publish
         run: |
           uv build
