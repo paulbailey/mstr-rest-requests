@@ -99,14 +99,15 @@ class MSTRBaseSession(BaseUrlSession):
                     resp_code = resp_json["code"]
                 except KeyError:
                     raise exceptions.MSTRUnknownException(**resp_json)
-                if resp_code in ["ERR003", "ERR001"]:
-                    raise exceptions.LoginFailureException(**resp_json)
-                elif resp_code == "ERR009":
-                    raise exceptions.SessionException(**resp_json)
-                elif resp_code == "ERR004":
-                    raise exceptions.ResourceNotFoundException(**resp_json)
-                else:
-                    raise exceptions.MSTRException(**resp_json)
+                match resp_code:
+                    case "ERR001" | "ERR003":
+                        raise exceptions.LoginFailureException(**resp_json)
+                    case "ERR009":
+                        raise exceptions.SessionException(**resp_json)
+                    case "ERR004":
+                        raise exceptions.ResourceNotFoundException(**resp_json)
+                    case _:
+                        raise exceptions.MSTRException(**resp_json)
             except ValueError:
                 raise exceptions.MSTRException(
                     "Couldn't parse response: {}".format(response.text)

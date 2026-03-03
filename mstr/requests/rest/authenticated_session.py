@@ -13,18 +13,19 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from typing import Callable, Optional, Union
+from collections.abc import Callable
+from typing import TypeAlias
 
 from .session import MSTRRESTSession
 
-Credential = Union[str, Callable[[], str], None]
+Credential: TypeAlias = str | Callable[[], str] | None
 """A credential value: either a plain string or a zero-argument callable that
 returns a string.  Callables are resolved lazily when the session's context
 manager is entered, making it easy to integrate secrets managers or other
 deferred-lookup strategies."""
 
 
-def _resolve(value: Credential) -> Optional[str]:
+def _resolve(value: Credential) -> str | None:
     """Resolve a :data:`Credential` to its string value.
 
     If *value* is callable it is invoked and the result returned; otherwise

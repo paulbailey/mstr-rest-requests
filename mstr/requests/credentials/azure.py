@@ -30,11 +30,11 @@ Two helpers are provided:
 """
 
 import json
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 
 def _fetch_key_vault_value(
-    vault_url: str, secret_name: str, key: Optional[str] = None
+    vault_url: str, secret_name: str, key: str | None = None
 ) -> str:
     from azure.identity import DefaultAzureCredential
     from azure.keyvault.secrets import SecretClient
@@ -47,7 +47,7 @@ def _fetch_key_vault_value(
 
 
 def key_vault(
-    vault_url: str, secret_name: str, key: Optional[str] = None
+    vault_url: str, secret_name: str, key: str | None = None
 ) -> Callable[[], str]:
     """Return a callable that fetches a value from Azure Key Vault when invoked.
 
@@ -101,9 +101,9 @@ class KeyVaultSecret:
     def __init__(self, vault_url: str, secret_name: str):
         self._vault_url = vault_url
         self._secret_name = secret_name
-        self._cache: Optional[Dict[str, str]] = None
+        self._cache: dict[str, str] | None = None
 
-    def _fetch(self) -> Dict[str, str]:
+    def _fetch(self) -> dict[str, str]:
         if self._cache is None:
             from azure.identity import DefaultAzureCredential
             from azure.keyvault.secrets import SecretClient

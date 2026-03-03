@@ -39,12 +39,12 @@ SSM Parameter Store
 """
 
 import json
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, Dict, Optional
 
 
 def _fetch_secret_value(
-    secret_id: str, key: Optional[str] = None, region_name: Optional[str] = None
+    secret_id: str, key: str | None = None, region_name: str | None = None
 ) -> str:
     import boto3
 
@@ -57,7 +57,7 @@ def _fetch_secret_value(
 
 
 def secrets_manager(
-    secret_id: str, key: Optional[str] = None, region_name: Optional[str] = None
+    secret_id: str, key: str | None = None, region_name: str | None = None
 ) -> Callable[[], str]:
     """Return a callable that fetches a value from AWS Secrets Manager when invoked.
 
@@ -100,12 +100,12 @@ class SecretsManagerSecret:
             boto3 session region is used.
     """
 
-    def __init__(self, secret_id: str, region_name: Optional[str] = None):
+    def __init__(self, secret_id: str, region_name: str | None = None):
         self._secret_id = secret_id
         self._region_name = region_name
-        self._cache: Optional[Dict[str, str]] = None
+        self._cache: dict[str, str] | None = None
 
-    def _fetch(self) -> Dict[str, str]:
+    def _fetch(self) -> dict[str, str]:
         if self._cache is None:
             import boto3
 
@@ -129,7 +129,7 @@ class SecretsManagerSecret:
 
 
 def _fetch_parameter_value(
-    name: str, region_name: Optional[str] = None
+    name: str, region_name: str | None = None
 ) -> str:
     import boto3
 
@@ -139,7 +139,7 @@ def _fetch_parameter_value(
 
 
 def parameter_store(
-    name: str, region_name: Optional[str] = None
+    name: str, region_name: str | None = None
 ) -> Callable[[], str]:
     """Return a callable that fetches an SSM Parameter Store value when invoked.
 
@@ -182,9 +182,9 @@ class ParameterStoreValues:
             boto3 session region is used.
     """
 
-    def __init__(self, region_name: Optional[str] = None):
+    def __init__(self, region_name: str | None = None):
         self._region_name = region_name
-        self._cache: Dict[str, str] = {}
+        self._cache: dict[str, str] = {}
 
     def _fetch(self, name: str) -> str:
         if name not in self._cache:

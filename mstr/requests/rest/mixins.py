@@ -13,7 +13,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from typing import Union
+from __future__ import annotations
+
 from .exceptions import SessionException
 
 import json
@@ -44,7 +45,7 @@ class SessionPersistenceMixin:
         """Return a JSON string snapshot of the session state."""
         return json.dumps(self.dict())
 
-    def update_from_json(self, data: Union[dict, str]) -> None:
+    def update_from_json(self, data: dict | str) -> None:
         """Restore session state from a dict or JSON string.
 
         Args:

@@ -30,7 +30,7 @@ Two helpers are provided:
 """
 
 import json
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 
 def _build_secret_version_name(
@@ -43,7 +43,7 @@ def _fetch_secret_value(
     project: str,
     secret_id: str,
     version: str = "latest",
-    key: Optional[str] = None,
+    key: str | None = None,
 ) -> str:
     from google.cloud.secretmanager import SecretManagerServiceClient
 
@@ -60,7 +60,7 @@ def secret_manager(
     project: str,
     secret_id: str,
     version: str = "latest",
-    key: Optional[str] = None,
+    key: str | None = None,
 ) -> Callable[[], str]:
     """Return a callable that fetches a value from GCP Secret Manager when invoked.
 
@@ -115,9 +115,9 @@ class SecretManagerSecret:
         self._project = project
         self._secret_id = secret_id
         self._version = version
-        self._cache: Optional[Dict[str, str]] = None
+        self._cache: dict[str, str] | None = None
 
-    def _fetch(self) -> Dict[str, str]:
+    def _fetch(self) -> dict[str, str]:
         if self._cache is None:
             from google.cloud.secretmanager import SecretManagerServiceClient
 
