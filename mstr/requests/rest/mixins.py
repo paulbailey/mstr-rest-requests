@@ -15,11 +15,15 @@
 
 from __future__ import annotations
 
-from .exceptions import SessionException
-
 import json
+from typing import TYPE_CHECKING
 
 from requests.utils import dict_from_cookiejar, cookiejar_from_dict
+
+from .exceptions import SessionException
+
+if TYPE_CHECKING:
+    from .protocols import MSTRSessionProtocol
 
 
 class SessionPersistenceMixin:
@@ -30,7 +34,7 @@ class SessionPersistenceMixin:
     sessions between processes.
     """
 
-    def dict(self) -> dict:
+    def dict(self: MSTRSessionProtocol) -> dict:
         """Return a dict snapshot of the session state.
 
         The dict contains ``base_url``, ``cookies``, and ``headers``.
@@ -45,7 +49,7 @@ class SessionPersistenceMixin:
         """Return a JSON string snapshot of the session state."""
         return json.dumps(self.dict())
 
-    def update_from_json(self, data: dict | str) -> None:
+    def update_from_json(self: MSTRSessionProtocol, data: dict | str) -> None:
         """Restore session state from a dict or JSON string.
 
         Args:

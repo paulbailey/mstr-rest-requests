@@ -13,14 +13,23 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from mstr.requests.rest.exceptions import SessionException
+
 from .utils import check_valid_session
+
+if TYPE_CHECKING:
+    from mstr.requests.rest.protocols import MSTRSessionProtocol
 
 
 class ProjectsMixin:
     """Mixin providing MicroStrategy project-related helpers."""
 
     @check_valid_session
-    def get_projects(self):
+    def get_projects(self: MSTRSessionProtocol):
         """Fetch the list of projects via ``GET /projects``.
 
         Returns:
@@ -51,5 +60,13 @@ class ProjectsMixin:
 
         Args:
             project_name: The display name of the project.
+
+        Raises:
+            SessionException: If :meth:`load_projects` has not been called.
         """
-        return self.projects_by_name.get(project_name, None)
+        try:
+            return self.projects_by_name.get(project_name, None)
+        except AttributeError:
+            raise SessionException(
+                "Call load_projects() before get_project_id()"
+            )

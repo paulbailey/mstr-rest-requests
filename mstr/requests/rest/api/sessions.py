@@ -13,14 +13,21 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from .utils import check_valid_session
+
+if TYPE_CHECKING:
+    from mstr.requests.rest.protocols import MSTRSessionProtocol
 
 
 class SessionsMixin:
     """Mixin providing MicroStrategy session-management endpoints."""
 
     @check_valid_session
-    def put_sessions(self):
+    def put_sessions(self: MSTRSessionProtocol):
         """Prolong the session via ``PUT /sessions``.
 
         Returns:
@@ -29,7 +36,7 @@ class SessionsMixin:
         return self.put("sessions")
 
     @check_valid_session
-    def get_sessions_userinfo(self):
+    def get_sessions_userinfo(self: MSTRSessionProtocol):
         """Retrieve user information via ``GET /sessions/userInfo``.
 
         Returns:
@@ -39,7 +46,7 @@ class SessionsMixin:
         return self.get("sessions/userInfo")
 
     @check_valid_session
-    def get_sessions(self):
+    def get_sessions(self: MSTRSessionProtocol):
         """Retrieve session status via ``GET /sessions``.
 
         Returns:

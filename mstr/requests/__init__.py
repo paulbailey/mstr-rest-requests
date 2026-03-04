@@ -25,6 +25,12 @@ type-hint their own callable credential providers.
 """
 
 from .rest.authenticated_session import AuthenticatedMSTRRESTSession, Credential
+from .rest.protocols import MSTRSessionProtocol
 from .rest.session import MSTRRESTSession
 
-__all__ = ["AuthenticatedMSTRRESTSession", "Credential", "MSTRRESTSession"]
+__all__ = [
+    "AuthenticatedMSTRRESTSession",
+    "Credential",
+    "MSTRRESTSession",
+    "MSTRSessionProtocol",
+]

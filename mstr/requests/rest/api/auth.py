@@ -13,12 +13,22 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from mstr.requests.rest.protocols import MSTRSessionProtocol
+
 
 class AuthMixin:
     """Mixin providing MicroStrategy REST API authentication methods."""
 
     def post_login(
-        self, username: str = None, password: str = None, application_type: int = 8
+        self: MSTRSessionProtocol,
+        username: str = None,
+        password: str = None,
+        application_type: int = 8,
     ):
         """Create an authenticated session via ``POST /auth/login``.
 
@@ -62,7 +72,7 @@ class AuthMixin:
             login_response.raise_for_status()
         return login_response
 
-    def post_logout(self):
+    def post_logout(self: MSTRSessionProtocol):
         """Close the session via ``POST /auth/logout``.
 
         On success the auth token is removed from the session headers.
@@ -96,7 +106,7 @@ class AuthMixin:
         """
         return self.post_logout()
 
-    def delegate(self, identity_token: str):
+    def delegate(self: MSTRSessionProtocol, identity_token: str):
         """Authenticate with a delegated identity token via ``POST /auth/delegate``.
 
         Args:
