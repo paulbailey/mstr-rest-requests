@@ -283,13 +283,17 @@ response = session.get("reports/abc123", project_id="B7CA92...")
 
 All API error responses are translated into typed exceptions:
 
-| Exception                     | Trigger                        |
-|-------------------------------|--------------------------------|
-| `LoginFailureException`       | ERR001, ERR003                 |
-| `SessionException`            | ERR009                         |
-| `ResourceNotFoundException`   | ERR004                         |
-| `MSTRUnknownException`        | Unrecognised error response    |
-| `MSTRException`               | Any other MicroStrategy error  |
+| Exception                          | Error codes            | Trigger                              |
+|------------------------------------|------------------------|--------------------------------------|
+| `LoginFailureException`            | ERR003                 | Authentication error                 |
+| `IServerException`                 | ERR002, ERR0013        | IServer error or unreachable         |
+| `ResourceNotFoundException`        | ERR004                 | Resource not found                   |
+| `InvalidRequestException`          | ERR005, ERR006, ERR007 | Missing or invalid input             |
+| `SessionException`                 | ERR009                 | Session invalid or timed out         |
+| `InsufficientPrivilegesException`  | ERR0014, ERR0017       | Insufficient privileges / permission |
+| `ObjectAlreadyExistsException`     | ERR0015                | Object already exists                |
+| `MSTRUnknownException`             | --                     | Response missing error code          |
+| `MSTRException`                    | Everything else        | Base class / catch-all               |
 
 ```python
 from mstr.requests.rest.exceptions import LoginFailureException

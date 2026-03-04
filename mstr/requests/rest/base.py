@@ -68,9 +68,13 @@ class MSTRBaseSession(BaseUrlSession):
             A :class:`requests.Response`.
 
         Raises:
-            LoginFailureException: On ``ERR001`` / ``ERR003`` responses.
-            SessionException: On ``ERR009`` responses.
+            LoginFailureException: On ``ERR003`` responses.
+            IServerException: On ``ERR002`` / ``ERR0013`` responses.
             ResourceNotFoundException: On ``ERR004`` responses.
+            InvalidRequestException: On ``ERR005`` / ``ERR006`` / ``ERR007``.
+            SessionException: On ``ERR009`` responses.
+            InsufficientPrivilegesException: On ``ERR0014`` / ``ERR0017``.
+            ObjectAlreadyExistsException: On ``ERR0015`` responses.
             MSTRException: On any other MicroStrategy error response.
         """
 
@@ -100,12 +104,20 @@ class MSTRBaseSession(BaseUrlSession):
                 except KeyError:
                     raise exceptions.MSTRUnknownException(**resp_json)
                 match resp_code:
-                    case "ERR001" | "ERR003":
+                    case "ERR003":
                         raise exceptions.LoginFailureException(**resp_json)
-                    case "ERR009":
-                        raise exceptions.SessionException(**resp_json)
+                    case "ERR002" | "ERR0013":
+                        raise exceptions.IServerException(**resp_json)
                     case "ERR004":
                         raise exceptions.ResourceNotFoundException(**resp_json)
+                    case "ERR005" | "ERR006" | "ERR007":
+                        raise exceptions.InvalidRequestException(**resp_json)
+                    case "ERR009":
+                        raise exceptions.SessionException(**resp_json)
+                    case "ERR0014" | "ERR0017":
+                        raise exceptions.InsufficientPrivilegesException(**resp_json)
+                    case "ERR0015":
+                        raise exceptions.ObjectAlreadyExistsException(**resp_json)
                     case _:
                         raise exceptions.MSTRException(**resp_json)
             except ValueError:

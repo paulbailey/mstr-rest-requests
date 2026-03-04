@@ -29,31 +29,47 @@ class MSTRException(Exception):
 
     def __init__(self, message: str = None, *args, **kwargs):
         self.code = kwargs.get("code", "N/A")
-        self.message = "{}: {}.".format(self.code, message)
+        self.message = f"{self.code}: {message}."
         self.iserver_code = kwargs.get("iServerCode", None)
         if self.iserver_code:
             self.iserver_message = iserver_error_codes.get(self.iserver_code)
-            self.message += "  [I-Server error code {} ({})]".format(
-                self.iserver_message, self.iserver_code
+            self.message += (
+                f"  [I-Server error code {self.iserver_message} ({self.iserver_code})]"
             )
         super().__init__(self.message, *args)
-
-
-class LoginFailureException(MSTRException):
-    """Raised when authentication fails (``ERR001`` or ``ERR003``)."""
-
-
-class SessionException(MSTRException):
-    """Raised on session-related errors (``ERR009``) or missing auth tokens."""
-
-
-class ExecutionCancelledException(MSTRException):
-    """Raised when a report or cube execution is cancelled."""
 
 
 class MSTRUnknownException(MSTRException):
     """Raised when the error response lacks a recognised ``code`` field."""
 
 
+class LoginFailureException(MSTRException):
+    """Raised when authentication fails (``ERR003``)."""
+
+
+class IServerException(MSTRException):
+    """Raised on Intelligence Server errors (``ERR002``, ``ERR0013``)."""
+
+
 class ResourceNotFoundException(MSTRException):
     """Raised when a requested resource does not exist (``ERR004``)."""
+
+
+class InvalidRequestException(MSTRException):
+    """Raised on invalid input or missing required fields (``ERR005``, ``ERR006``, ``ERR007``)."""
+
+
+class SessionException(MSTRException):
+    """Raised when the session is invalid or has timed out (``ERR009``)."""
+
+
+class InsufficientPrivilegesException(MSTRException):
+    """Raised when the user lacks required privileges or permissions (``ERR0014``, ``ERR0017``)."""
+
+
+class ObjectAlreadyExistsException(MSTRException):
+    """Raised when attempting to create an object that already exists (``ERR0015``)."""
+
+
+class ExecutionCancelledException(MSTRException):
+    """Raised when a report or cube execution is cancelled."""
