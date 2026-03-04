@@ -15,7 +15,7 @@ dependencies = [
 aws = ["boto3"]
 azure = ["azure-identity", "azure-keyvault-secrets"]
 gcp = ["google-cloud-secret-manager"]
-docs = ["sphinx>=7,<9", "sphinx-rtd-theme"]
+docs = ["sphinx>=9,<10", "sphinx-rtd-theme"]
 
 [project.urls]
 Documentation = "https://mstr-rest-requests.readthedocs.io/"
@@ -24,7 +24,7 @@ Repository = "https://github.com/paulbailey/mstr-rest-requests"
 [dependency-groups]
 dev = [
     "pytest",
-    "sphinx>=7,<9",
+    "sphinx>=9,<10",
     "sphinx-rtd-theme",
     "pytest-cov>=7,<8",
     "mypy>=1.0.0,<2",
