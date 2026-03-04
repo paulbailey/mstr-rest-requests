@@ -14,15 +14,17 @@
 #    limitations under the License.
 
 import functools
+from collections.abc import Callable
+from typing import Any
 
 from mstr.requests.rest.exceptions import SessionException
 
 
-def check_valid_session(f):
+def check_valid_session(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator that raises :class:`SessionException` if no auth token is present."""
 
     @functools.wraps(f)
-    def check(self, *args, **kwargs):
+    def check(self: Any, *args: Any, **kwargs: Any) -> Any:
         if self.has_session():
             return f(self, *args, **kwargs)
         else:

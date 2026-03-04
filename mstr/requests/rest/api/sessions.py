@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING
 from .utils import check_valid_session
 
 if TYPE_CHECKING:
+    from requests import Response
+
     from mstr.requests.rest.protocols import MSTRSessionProtocol
 
 
@@ -27,7 +29,7 @@ class SessionsMixin:
     """Mixin providing MicroStrategy session-management endpoints."""
 
     @check_valid_session
-    def put_sessions(self: MSTRSessionProtocol):
+    def put_sessions(self: MSTRSessionProtocol) -> Response:
         """Prolong the session via ``PUT /sessions``.
 
         Returns:
@@ -36,7 +38,7 @@ class SessionsMixin:
         return self.put("sessions")
 
     @check_valid_session
-    def get_sessions_userinfo(self: MSTRSessionProtocol):
+    def get_sessions_userinfo(self: MSTRSessionProtocol) -> Response:
         """Retrieve user information via ``GET /sessions/userInfo``.
 
         Returns:
@@ -46,7 +48,7 @@ class SessionsMixin:
         return self.get("sessions/userInfo")
 
     @check_valid_session
-    def get_sessions(self: MSTRSessionProtocol):
+    def get_sessions(self: MSTRSessionProtocol) -> Response:
         """Retrieve session status via ``GET /sessions``.
 
         Returns:
@@ -54,21 +56,21 @@ class SessionsMixin:
         """
         return self.get("sessions")
 
-    def extend_session(self):
+    def extend_session(self) -> Response:
         """Prolong the current session.
 
         Convenience alias for :meth:`put_sessions`.
         """
         return self.put_sessions()
 
-    def get_userinfo(self):
+    def get_userinfo(self) -> Response:
         """Get the current user's information.
 
         Convenience alias for :meth:`get_sessions_userinfo`.
         """
         return self.get_sessions_userinfo()
 
-    def get_session_info(self):
+    def get_session_info(self) -> Response:
         """Get the current session's status.
 
         Convenience alias for :meth:`get_sessions`.

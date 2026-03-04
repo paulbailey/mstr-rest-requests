@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from mstr.requests.rest.exceptions import SessionException
 
@@ -29,7 +29,7 @@ class ProjectsMixin:
     """Mixin providing MicroStrategy project-related helpers."""
 
     @check_valid_session
-    def get_projects(self: MSTRSessionProtocol):
+    def get_projects(self: MSTRSessionProtocol) -> list[dict[str, Any]]:
         """Fetch the list of projects via ``GET /projects``.
 
         Returns:
@@ -38,7 +38,7 @@ class ProjectsMixin:
         response = self.get("projects").json()
         return response
 
-    def load_projects(self):
+    def load_projects(self) -> None:
         """Fetch projects and populate :attr:`projects_by_name` / :attr:`projects_by_id` look-ups.
 
         After calling this method you can resolve project names to IDs
@@ -53,7 +53,7 @@ class ProjectsMixin:
         self.projects_by_name = projects_by_name
         self.projects_by_id = projects_by_id
 
-    def get_project_id(self, project_name):
+    def get_project_id(self, project_name: str) -> str | None:
         """Return the project ID for *project_name*, or ``None`` if not found.
 
         :meth:`load_projects` must be called first.

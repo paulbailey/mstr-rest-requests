@@ -13,7 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from __future__ import annotations
+
 import warnings
+
+from requests import Response
 from requests_toolbelt.sessions import BaseUrlSession
 
 from mstr.requests.rest import exceptions
@@ -48,11 +52,11 @@ class MSTRBaseSession(BaseUrlSession):
         self,
         method: str,
         url: str,
-        include_auth=True,
-        project_id: str = None,
+        include_auth: bool = True,
+        project_id: str | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> Response:
         """Send a request, injecting MicroStrategy headers automatically.
 
         Args:

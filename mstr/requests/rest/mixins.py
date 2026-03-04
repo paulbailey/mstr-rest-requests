@@ -74,7 +74,7 @@ class SessionPersistenceMixin:
             raise SessionException(e)
 
     @classmethod
-    def from_dict(cls, session_dict: dict):
+    def from_dict(cls, session_dict: dict) -> SessionPersistenceMixin:
         """Create a new session instance from a dict snapshot.
 
         Args:

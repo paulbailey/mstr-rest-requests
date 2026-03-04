@@ -13,7 +13,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from __future__ import annotations
+
 from collections.abc import Callable
+from types import TracebackType
 from typing import TypeAlias
 
 from .session import MSTRRESTSession
@@ -83,7 +86,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         self._application_type = application_type
         self._used_delegate = False
 
-    def __enter__(self):
+    def __enter__(self) -> AuthenticatedMSTRRESTSession:
         if callable(self._base_url_credential):
             self.base_url = self._base_url_credential()
 
@@ -103,6 +106,11 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             self._used_delegate = False
         return self
 
-    def __exit__(self, t, v, tb):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         if not self._used_delegate:
             self.logout()

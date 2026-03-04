@@ -18,6 +18,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from requests import Response
+
     from mstr.requests.rest.protocols import MSTRSessionProtocol
 
 
@@ -26,10 +28,10 @@ class AuthMixin:
 
     def post_login(
         self: MSTRSessionProtocol,
-        username: str = None,
-        password: str = None,
+        username: str | None = None,
+        password: str | None = None,
         application_type: int = 8,
-    ):
+    ) -> Response:
         """Create an authenticated session via ``POST /auth/login``.
 
         The *login mode* is inferred from which arguments are supplied:
@@ -72,7 +74,7 @@ class AuthMixin:
             login_response.raise_for_status()
         return login_response
 
-    def post_logout(self: MSTRSessionProtocol):
+    def post_logout(self: MSTRSessionProtocol) -> None:
         """Close the session via ``POST /auth/logout``.
 
         On success the auth token is removed from the session headers.
@@ -82,8 +84,11 @@ class AuthMixin:
             self.destroy_auth_token()
 
     def login(
-        self, username: str = None, password: str = None, application_type: int = 8
-    ):
+        self,
+        username: str | None = None,
+        password: str | None = None,
+        application_type: int = 8,
+    ) -> Response:
         """Log in to the MicroStrategy REST API.
 
         Convenience alias for :meth:`post_login`.  If no credentials are
@@ -99,14 +104,14 @@ class AuthMixin:
         """
         return self.post_login(username, password, application_type)
 
-    def logout(self):
+    def logout(self) -> None:
         """Log out and close the current REST API session.
 
         Convenience alias for :meth:`post_logout`.
         """
         return self.post_logout()
 
-    def delegate(self: MSTRSessionProtocol, identity_token: str):
+    def delegate(self: MSTRSessionProtocol, identity_token: str) -> Response:
         """Authenticate with a delegated identity token via ``POST /auth/delegate``.
 
         Args:
