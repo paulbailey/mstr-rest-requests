@@ -9,10 +9,12 @@ Establishing a connection
 Probably the easiest way to establish a connection is by explicitly logging in and out:
 
 .. autoclass:: mstr.requests.MSTRRESTSession
-     :members: login, logout
+   :members: login, logout
+   :no-index:
 
 Establishing a connection with a context manager
 ------------------------------------------------
 
 .. autoclass:: mstr.requests.AuthenticatedMSTRRESTSession
-    :members:
+   :members:
+   :no-index:
