@@ -61,7 +61,7 @@ session.delegate(identity_token="supersecretidentitytoken")
 ### API key (trusted authentication)
 
 ```python
-session.login(username="supersecretapikey")
+session.login(api_key="supersecretapikey")
 ```
 
 ### Anonymous
