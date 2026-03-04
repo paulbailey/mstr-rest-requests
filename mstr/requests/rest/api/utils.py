@@ -13,12 +13,15 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import functools
+
 from mstr.requests.rest.exceptions import SessionException
 
 
-def check_valid_session(f, *args, **kwargs):
+def check_valid_session(f):
     """Decorator that raises :class:`SessionException` if no auth token is present."""
 
+    @functools.wraps(f)
     def check(self, *args, **kwargs):
         if self.has_session():
             return f(self, *args, **kwargs)
