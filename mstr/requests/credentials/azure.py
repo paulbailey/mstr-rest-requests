@@ -31,6 +31,7 @@ Two helpers are provided:
 
 import json
 from collections.abc import Callable
+from typing import cast
 
 
 def _fetch_key_vault_value(
@@ -41,8 +42,10 @@ def _fetch_key_vault_value(
 
     client = SecretClient(vault_url=vault_url, credential=DefaultAzureCredential())
     secret_value = client.get_secret(secret_name).value
+    if secret_value is None:
+        raise ValueError(f"Secret {secret_name} has no value")
     if key is not None:
-        return json.loads(secret_value)[key]
+        return cast(str, json.loads(secret_value)[key])
     return secret_value
 
 
@@ -112,7 +115,10 @@ class KeyVaultSecret:
                 vault_url=self._vault_url,
                 credential=DefaultAzureCredential(),
             )
-            self._cache = json.loads(client.get_secret(self._secret_name).value)
+            raw = client.get_secret(self._secret_name).value
+            if raw is None:
+                raise ValueError(f"Secret {self._secret_name} has no value")
+            self._cache = json.loads(raw)
         return self._cache
 
     def field(self, key: str) -> Callable[[], str]:

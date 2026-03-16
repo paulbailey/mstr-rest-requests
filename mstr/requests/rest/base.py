@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import cast
 
 from requests import Response
 from requests_toolbelt.sessions import BaseUrlSession
@@ -132,4 +133,4 @@ class MSTRBaseSession(BaseUrlSession):
             for key, value in response.headers.items():
                 if key.upper().startswith("X-MSTR"):
                     self.headers.update({key: value})
-        return response
+        return cast(Response, response)

@@ -15,19 +15,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from requests import Response
 
     from mstr.requests.rest.protocols import MSTRSessionProtocol
 
+_T = TypeVar("_T", bound="MSTRSessionProtocol")
+
 
 class AuthMixin:
     """Mixin providing MicroStrategy REST API authentication methods."""
 
     def post_login(
-        self: MSTRSessionProtocol,
+        self: _T,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
@@ -82,7 +84,7 @@ class AuthMixin:
             login_response.raise_for_status()
         return login_response
 
-    def post_logout(self: MSTRSessionProtocol) -> None:
+    def post_logout(self: _T) -> None:
         """Close the session via ``POST /auth/logout``.
 
         On success the auth token is removed from the session headers.
@@ -112,16 +114,16 @@ class AuthMixin:
         Returns:
             A :class:`requests.Response` for the login request.
         """
-        return self.post_login(username, password, api_key, application_type)
+        return self.post_login(username, password, api_key, application_type)  # type: ignore[misc]
 
     def logout(self) -> None:
         """Log out and close the current REST API session.
 
         Convenience alias for :meth:`post_logout`.
         """
-        return self.post_logout()
+        return self.post_logout()  # type: ignore[misc]
 
-    def delegate(self: MSTRSessionProtocol, identity_token: str) -> Response:
+    def delegate(self: _T, identity_token: str) -> Response:
         """Authenticate with a delegated identity token via ``POST /auth/delegate``.
 
         Args:

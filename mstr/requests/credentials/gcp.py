@@ -31,6 +31,7 @@ Two helpers are provided:
 
 import json
 from collections.abc import Callable
+from typing import cast
 
 
 def _build_secret_version_name(
@@ -52,7 +53,7 @@ def _fetch_secret_value(
     response = client.access_secret_version(name=name)
     payload = response.payload.data.decode("UTF-8")
     if key is not None:
-        return json.loads(payload)[key]
+        return cast(str, json.loads(payload)[key])
     return payload
 
 

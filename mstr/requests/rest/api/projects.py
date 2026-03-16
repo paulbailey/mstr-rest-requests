@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from mstr.requests.rest.exceptions import SessionException
 
@@ -36,7 +36,7 @@ class ProjectsMixin:
             A list of project dicts as returned by the REST API.
         """
         response = self.get("projects").json()
-        return response
+        return cast(list[dict[str, Any]], response)
 
     def load_projects(self) -> None:
         """Fetch projects and populate :attr:`projects_by_name` / :attr:`projects_by_id` look-ups.

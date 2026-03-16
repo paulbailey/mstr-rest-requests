@@ -41,6 +41,7 @@ SSM Parameter Store
 import json
 from collections.abc import Callable
 from functools import partial
+from typing import cast
 
 
 def _fetch_secret_value(
@@ -52,8 +53,8 @@ def _fetch_secret_value(
     response = client.get_secret_value(SecretId=secret_id)
     secret_string = response["SecretString"]
     if key is not None:
-        return json.loads(secret_string)[key]
-    return secret_string
+        return cast(str, json.loads(secret_string)[key])
+    return cast(str, secret_string)
 
 
 def secrets_manager(
@@ -135,7 +136,7 @@ def _fetch_parameter_value(
 
     client = boto3.client("ssm", region_name=region_name)
     response = client.get_parameter(Name=name, WithDecryption=True)
-    return response["Parameter"]["Value"]
+    return cast(str, response["Parameter"]["Value"])
 
 
 def parameter_store(

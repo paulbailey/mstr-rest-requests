@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from .utils import check_valid_session
 
@@ -35,7 +35,7 @@ class SessionsMixin:
         Returns:
             A :class:`requests.Response`.
         """
-        return self.put("sessions")
+        return cast(Response, self.put("sessions"))
 
     @check_valid_session
     def get_sessions_userinfo(self: MSTRSessionProtocol) -> Response:
@@ -45,7 +45,7 @@ class SessionsMixin:
             A :class:`requests.Response` whose JSON body contains user
             details.
         """
-        return self.get("sessions/userInfo")
+        return cast(Response, self.get("sessions/userInfo"))
 
     @check_valid_session
     def get_sessions(self: MSTRSessionProtocol) -> Response:
@@ -54,25 +54,25 @@ class SessionsMixin:
         Returns:
             A :class:`requests.Response`.
         """
-        return self.get("sessions")
+        return cast(Response, self.get("sessions"))
 
     def extend_session(self) -> Response:
         """Prolong the current session.
 
         Convenience alias for :meth:`put_sessions`.
         """
-        return self.put_sessions()
+        return cast(Response, self.put_sessions())
 
     def get_userinfo(self) -> Response:
         """Get the current user's information.
 
         Convenience alias for :meth:`get_sessions_userinfo`.
         """
-        return self.get_sessions_userinfo()
+        return cast(Response, self.get_sessions_userinfo())
 
     def get_session_info(self) -> Response:
         """Get the current session's status.
 
         Convenience alias for :meth:`get_sessions`.
         """
-        return self.get_sessions()
+        return cast(Response, self.get_sessions())

@@ -27,9 +27,10 @@ class MSTRException(Exception):
         iserver_message: Looked-up description for *iserver_code*.
     """
 
-    def __init__(self, message: str = None, *args, **kwargs):
+    def __init__(self, message: str | None = None, *args, **kwargs):
         self.code = kwargs.get("code", "N/A")
-        self.message = f"{self.code}: {message}."
+        msg = message if message is not None else kwargs.get("message", "Unknown error")
+        self.message = f"{self.code}: {msg}."
         self.iserver_code = kwargs.get("iServerCode", None)
         if self.iserver_code:
             self.iserver_message = iserver_error_codes.get(self.iserver_code)
