@@ -30,6 +30,7 @@ class AuthMixin:
         self: MSTRSessionProtocol,
         username: str | None = None,
         password: str | None = None,
+        api_key: str | None = None,
         application_type: int = 8,
     ) -> Response:
         """Create an authenticated session via ``POST /auth/login``.
@@ -43,6 +44,7 @@ class AuthMixin:
         Args:
             username: MicroStrategy username or API key.
             password: Password for standard authentication.
+            api_key: API key for trusted authentication.
             application_type: MicroStrategy application type identifier.
 
         Returns:
@@ -56,6 +58,12 @@ class AuthMixin:
                 "username": username,
                 "password": password,
                 "loginMode": 1,
+                "applicationType": application_type,
+            }
+        elif api_key is not None:
+            data = {
+                "username": api_key,
+                "loginMode": 4096,
                 "applicationType": application_type,
             }
         elif username is not None and password is None:
@@ -87,6 +95,7 @@ class AuthMixin:
         self,
         username: str | None = None,
         password: str | None = None,
+        api_key: str | None = None,
         application_type: int = 8,
     ) -> Response:
         """Log in to the MicroStrategy REST API.
@@ -97,12 +106,13 @@ class AuthMixin:
         Args:
             username: MicroStrategy username or API key.
             password: Password for standard authentication.
+            api_key: API key for trusted authentication.
             application_type: MicroStrategy application type identifier.
 
         Returns:
             A :class:`requests.Response` for the login request.
         """
-        return self.post_login(username, password, application_type)
+        return self.post_login(username, password, api_key, application_type)
 
     def logout(self) -> None:
         """Log out and close the current REST API session.

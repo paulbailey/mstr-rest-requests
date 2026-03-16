@@ -99,10 +99,10 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             self.delegate(identity_token)
             self._used_delegate = True
         elif api_key is not None:
-            self.login(api_key, None, self._application_type)
+            self.login(api_key=api_key, application_type=self._application_type)
             self._used_delegate = False
         else:
-            self.login(username, password, self._application_type)
+            self.login(username=username, password=password, application_type=self._application_type)
             self._used_delegate = False
         return self
 

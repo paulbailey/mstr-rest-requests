@@ -35,19 +35,19 @@ class TestCallableCredentials:
     def test_plain_strings_still_work(self):
         session = self._make_session(username="user", password="pass")
         session.__enter__()
-        session.login.assert_called_once_with("user", "pass", 8)
+        session.login.assert_called_once_with(username="user", password="pass", application_type=8)
 
     def test_callable_username_and_password(self):
         session = self._make_session(
             username=lambda: "lazy_user", password=lambda: "lazy_pass"
         )
         session.__enter__()
-        session.login.assert_called_once_with("lazy_user", "lazy_pass", 8)
+        session.login.assert_called_once_with(username="lazy_user", password="lazy_pass", application_type=8)
 
     def test_callable_api_key(self):
         session = self._make_session(api_key=lambda: "my_key")
         session.__enter__()
-        session.login.assert_called_once_with("my_key", None, 8)
+        session.login.assert_called_once_with(api_key="my_key", application_type=8)
 
     def test_callable_identity_token(self):
         session = self._make_session(identity_token=lambda: "my_token")
@@ -92,7 +92,7 @@ class TestCallableCredentials:
     def test_anonymous_login_with_no_credentials(self):
         session = self._make_session()
         session.__enter__()
-        session.login.assert_called_once_with(None, None, 8)
+        session.login.assert_called_once_with(username=None, password=None, application_type=8)
 
     def test_callable_base_url(self):
         session = AuthenticatedMSTRRESTSession(
