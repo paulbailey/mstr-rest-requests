@@ -1,6 +1,8 @@
 Installation
 ============
 
+Python 3.10 or later is required.
+
 Install from PyPI with pip:
 
 .. code-block:: bash

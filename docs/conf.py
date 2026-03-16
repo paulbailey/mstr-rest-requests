@@ -7,7 +7,7 @@ import importlib.metadata
 # -- Project information -----------------------------------------------------
 
 project = "mstr-rest-requests"
-copyright = "2020, Paul Bailey"
+copyright = "2020–2026, Paul Bailey"
 author = "Paul Bailey"
 
 _meta = importlib.metadata.metadata("mstr-rest-requests")

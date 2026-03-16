@@ -6,6 +6,8 @@ An extension to the excellent [requests](https://docs.python-requests.org/) `Ses
 
 ## Installation
 
+Requires Python 3.10 or later.
+
 ```bash
 pip install mstr-rest-requests
 ```
@@ -54,17 +56,50 @@ session.login(username="dave", password="hellodave")
 
 ### Identity token (delegation)
 
+Context manager:
+
+```python
+with AuthenticatedMSTRRESTSession(
+    base_url="https://.../api/",
+    identity_token="supersecretidentitytoken",
+) as session:
+    ...
+```
+
+Manual:
+
 ```python
 session.delegate(identity_token="supersecretidentitytoken")
 ```
 
 ### API key (trusted authentication)
 
+Context manager (use the `api_key` parameter; supports callables for vaults):
+
 ```python
-session.login(username="supersecretapikey")
+with AuthenticatedMSTRRESTSession(
+    base_url="https://.../api/",
+    api_key="your-api-key",
+) as session:
+    ...
+```
+
+Manual:
+
+```python
+session.login(api_key="your-api-key")
 ```
 
 ### Anonymous
+
+Context manager:
+
+```python
+with AuthenticatedMSTRRESTSession(base_url="https://.../api/") as session:
+    ...
+```
+
+Manual:
 
 ```python
 session.login()
@@ -74,8 +109,9 @@ session.login()
 
 Every credential parameter on `AuthenticatedMSTRRESTSession` -- including
 `base_url` -- accepts either a plain string **or** a zero-argument callable
-that returns a string.  Callables are resolved lazily when the context manager
-is entered, not when the session is constructed.
+that returns a string (the :data:`Credential` type).  Callables are resolved
+lazily when the context manager is entered, not when the session is constructed.
+You can import the type alias from `mstr.requests` for type hints.
 
 This makes it easy to pull credentials from vaults, environment helpers, or any
 other source at connect time:
@@ -292,6 +328,7 @@ All API error responses are translated into typed exceptions:
 | `SessionException`                 | ERR009                 | Session invalid or timed out         |
 | `InsufficientPrivilegesException`  | ERR0014, ERR0017       | Insufficient privileges / permission |
 | `ObjectAlreadyExistsException`     | ERR0015                | Object already exists                |
+| `ExecutionCancelledException`      | --                     | Report or cube execution cancelled   |
 | `MSTRUnknownException`             | --                     | Response missing error code          |
 | `MSTRException`                    | Everything else        | Base class / catch-all               |
 
