@@ -17,11 +17,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
+from requests import Response
+
 from .utils import check_valid_session
 
 if TYPE_CHECKING:
-    from requests import Response
-
     from mstr.requests.rest.protocols import MSTRSessionProtocol
 
 
