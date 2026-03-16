@@ -81,3 +81,15 @@ def test_all_exceptions_inherit_from_mstr_exception():
         assert issubclass(exc_class, exceptions.MSTRException)
     assert issubclass(exceptions.MSTRUnknownException, exceptions.MSTRException)
     assert issubclass(exceptions.ExecutionCancelledException, exceptions.MSTRException)
+
+
+def test_mstr_exception_with_iserver_code_appends_iserver_message():
+    """MSTRException with iServerCode in kwargs includes looked-up iserver message."""
+    exc = exceptions.MSTRException(
+        code="ERR001", message="Something failed", iServerCode=-2147181482
+    )
+    assert exc.iserver_code == -2147181482
+    assert exc.iserver_message == "AE_DISABLEMERGEDE"
+    assert "I-Server error code" in str(exc)
+    assert "AE_DISABLEMERGEDE" in str(exc)
+    assert "-2147181482" in str(exc)

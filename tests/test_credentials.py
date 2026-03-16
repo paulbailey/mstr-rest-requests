@@ -401,6 +401,25 @@ class TestKeyVaultHelper:
 
         assert result == "s3cret"
 
+    def test_secret_value_none_raises_value_error(self):
+        from mstr.requests.credentials.azure import key_vault
+
+        mock_secret = MagicMock()
+        mock_secret.value = None
+        mock_client_cls = MagicMock()
+        mock_client_cls.return_value.get_secret.return_value = mock_secret
+        mock_cred_cls = MagicMock()
+        mock_identity = MagicMock(**{"DefaultAzureCredential": mock_cred_cls})
+        mock_kv = MagicMock(**{"SecretClient": mock_client_cls})
+
+        provider = key_vault("https://v.vault.azure.net/", "my-secret")
+        with patch.dict(
+            sys.modules,
+            {"azure": MagicMock(), "azure.identity": mock_identity, "azure.keyvault": MagicMock(), "azure.keyvault.secrets": mock_kv},
+        ):
+            with pytest.raises(ValueError, match="Secret my-secret has no value"):
+                provider()
+
 
 class TestKeyVaultSecret:
     def _patch_azure(self, secret_data):
@@ -455,6 +474,27 @@ class TestKeyVaultSecret:
         _ = secret.field("x")
 
         mock_client_cls.return_value.get_secret.assert_not_called()
+
+    def test_secret_value_none_raises_value_error(self):
+        from mstr.requests.credentials.azure import KeyVaultSecret
+
+        mock_secret = MagicMock()
+        mock_secret.value = None
+        mock_client_cls = MagicMock()
+        mock_client_cls.return_value.get_secret.return_value = mock_secret
+        mock_cred_cls = MagicMock()
+        mock_identity = MagicMock(**{"DefaultAzureCredential": mock_cred_cls})
+        mock_kv = MagicMock(**{"SecretClient": mock_client_cls})
+        modules = {
+            "azure": MagicMock(),
+            "azure.identity": mock_identity,
+            "azure.keyvault": MagicMock(),
+            "azure.keyvault.secrets": mock_kv,
+        }
+        secret = KeyVaultSecret("https://v.vault.azure.net/", "s")
+        with patch.dict(sys.modules, modules):
+            with pytest.raises(ValueError, match="Secret s has no value"):
+                secret.field("k")()
 
 
 # ---------------------------------------------------------------------------
