@@ -42,6 +42,7 @@ class AuthMixin:
         The *login mode* is inferred from which arguments are supplied:
 
         * ``username`` **and** ``password`` -- standard auth (mode 1).
+        * ``api_key`` -- trusted / API-key auth (mode 4096).
         * ``username`` only -- trusted / API-key auth (mode 4096).
         * Neither -- anonymous auth (mode 8).
 

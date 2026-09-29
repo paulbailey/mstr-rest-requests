@@ -24,13 +24,15 @@ from .session import MSTRRESTSession
 
 
 class AuthenticatedMSTRRESTSession(MSTRRESTSession):
-    """httpx-based context-managed session that logs in on entry and out on exit.
+    """Context-managed session that logs in on entry and out on exit.
 
-    The httpx counterpart of the requests-based
-    :class:`~mstr.requests.AuthenticatedMSTRRESTSession`, taking the same
-    :data:`~mstr.requests.Credential` arguments.  Credentials are resolved
-    when the context manager is entered, and the underlying client is closed
-    on exit.
+    Each credential argument is a :data:`~mstr.requests.Credential`: a
+    string or a zero-argument callable.  Credentials are resolved when the
+    context manager is entered, and the underlying client is closed on exit.
+    An ``identity_token`` takes precedence over an ``api_key``, which takes
+    precedence over ``username``/``password``; with none of them the session
+    connects anonymously.  Sessions created with an identity token are not
+    logged out on exit.
 
     Example::
 

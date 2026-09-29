@@ -15,7 +15,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           version: "0.11.21"
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Install dependencies
         run: uv sync --all-extras
       - name: Build docs

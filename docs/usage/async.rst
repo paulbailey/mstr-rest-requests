@@ -1,8 +1,9 @@
 Async usage
 ===========
 
-``AsyncMSTRRESTSession`` and ``AsyncAuthenticatedMSTRRESTSession`` are the
-async counterparts of the synchronous sessions. Like them, they are built on
+:class:`~mstr.requests.AsyncMSTRRESTSession` and
+:class:`~mstr.requests.AsyncAuthenticatedMSTRRESTSession` are the async
+counterparts of the synchronous sessions. Like them, they are built on
 `httpx <https://www.python-httpx.org/>`_, and they work with asyncio and trio.
 
 .. code-block:: python
@@ -51,8 +52,10 @@ and redirects are followed.
 
 Use ``async with`` or ``await session.aclose()`` to release connections.
 
-.. autoclass:: mstr.requests.rest.aio.AsyncMSTRRESTSession
-   :no-index:
+Saved sessions
+--------------
 
-.. autoclass:: mstr.requests.rest.aio.AsyncAuthenticatedMSTRRESTSession
-   :no-index:
+``to_dict()`` and ``from_dict()`` use the same format as the synchronous
+session, so a session saved by one can be restored by the other.
+
+See :ref:`async-api` for the full list of methods.

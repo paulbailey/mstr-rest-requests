@@ -1,5 +1,7 @@
-API Reference
+API reference
 =============
+
+.. automodule:: mstr.requests
 
 Session classes
 ---------------
@@ -21,6 +23,8 @@ Session classes
 
 .. autoclass:: mstr.requests.MSTRSessionProtocol
    :members:
+
+.. _async-api:
 
 Async session classes
 ---------------------
@@ -50,8 +54,10 @@ Core helpers
    :members:
    :exclude-members: Credential
 
-Deprecated requests-based classes
----------------------------------
+Deprecated modules
+------------------
+
+.. automodule:: mstr.requests.httpx
 
 .. automodule:: mstr.requests.compat
 
@@ -78,8 +84,12 @@ Exceptions
    :members:
    :show-inheritance:
 
+.. _credential-providers-api:
+
 Credential providers
 --------------------
+
+.. automodule:: mstr.requests.credentials
 
 AWS
 ~~~

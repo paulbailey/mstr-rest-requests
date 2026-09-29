@@ -35,9 +35,9 @@ class AsyncMSTRRESTSession(
 
     The async counterpart of :class:`~mstr.requests.MSTRRESTSession`: the
     same methods, awaited, returning :class:`httpx.Response` objects.  Use
-    ``async with`` (or :meth:`aclose`) to release the underlying connection
+    ``async with`` (or :meth:`~mstr.requests.AsyncMSTRRESTSession.aclose`) to release the underlying connection
     pool; login and logout are up to you.  For automatic login/logout use
-    :class:`~mstr.requests.rest.aio.AsyncAuthenticatedMSTRRESTSession`.
+    :class:`~mstr.requests.AsyncAuthenticatedMSTRRESTSession`.
 
     Example::
 

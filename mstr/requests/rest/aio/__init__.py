@@ -15,7 +15,7 @@
 
 """Asynchronous sessions for the MicroStrategy REST API, built on httpx.
 
-Requires the ``async`` extra: ``pip install mstr-rest-requests[async]``.
+The public classes are exported by :mod:`mstr.requests`.
 """
 
 from .authenticated_session import AsyncAuthenticatedMSTRRESTSession, AsyncCredential

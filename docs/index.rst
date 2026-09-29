@@ -11,9 +11,14 @@ built on `httpx <https://www.python-httpx.org/>`_.
 
    usage/installation
    usage/quickstart
+   usage/authentication
    usage/async
+   usage/errors
    usage/upgrading
    api
+
+Release notes are in the
+`changelog <https://github.com/paulbailey/mstr-rest-requests/blob/main/CHANGELOG.md>`_.
 
 
 Indices and tables
