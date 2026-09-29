@@ -130,6 +130,23 @@ with AuthenticatedMSTRRESTSession(
     ...
 ```
 
+### Environment variables
+
+No extra needed. `env()` reads the variable each time it is resolved and
+raises `MissingCredentialException` if it is unset or empty (unless you pass
+`default=`):
+
+```python
+from mstr.requests.credentials.env import env
+
+with AuthenticatedMSTRRESTSession(
+    base_url=env("MSTR_BASE_URL"),
+    username=env("MSTR_USERNAME"),
+    password=env("MSTR_PASSWORD"),
+) as session:
+    ...
+```
+
 ### AWS Secrets Manager
 
 Install with `pip install mstr-rest-requests[aws]`.
@@ -302,10 +319,47 @@ a secret. Restored cookies are sent only to the `base_url` host.
 
 ### Projects
 
+Pass a project name as `project=` and the session looks up its ID, fetching
+the project list the first time (and again for a name it doesn't know):
+
 ```python
-session.load_projects()
-project_id = session.get_project_id("My Project")
-response = session.get("reports/abc123", project_id=project_id)
+response = session.get("reports/abc123", project="My Project")
+project_id = session.resolve_project_id("My Project")
+```
+
+### Long-running jobs
+
+`AuthenticatedMSTRRESTSession` (and its async counterpart) can keep a session
+alive for long jobs:
+
+- `relogin=True` -- when a request fails because the session expired
+  (`ERR009`), log in again with freshly resolved credentials and send the
+  request once more.
+- `keepalive_interval=240` -- call `extend_session()` every 240 seconds in the
+  background while the `with` block runs.
+
+```python
+with AuthenticatedMSTRRESTSession(
+    base_url="https://your-server/MicroStrategyLibrary/api/",
+    username="dave",
+    password=env("MSTR_PASSWORD"),
+    relogin=True,
+    keepalive_interval=240,
+) as session:
+    ...
+```
+
+### Identity tokens
+
+`create_identity_token()` returns a token another process can use to get its
+own session as the same user, without the user's credentials:
+
+```python
+token = session.create_identity_token()
+
+# In the other process:
+with AuthenticatedMSTRRESTSession(base_url=..., identity_token=token) as s:
+    ...
 ```
 
 ## Making requests
@@ -319,10 +373,39 @@ Its request methods take the usual httpx arguments (`params`, `json`,
   URLs on other hosts, and redirects to them, go without it.
 - `project_id` -- attach the `X-MSTR-ProjectID` header for project-scoped
   endpoints.
+- `project` -- the same, from a project name.
 
 ```python
 response = session.get("reports/abc123", project_id="B7CA92...")
 ```
+
+### Retries
+
+Pass `retries=` to retry requests that fail to connect, and (for `GET`,
+`HEAD`, `OPTIONS`, `PUT` and `DELETE`) ones that time out, hit a network
+error or get a 502, 503 or 504. The wait starts at `backoff_factor` seconds
+(default 0.5) and doubles each time, up to 60 seconds; a longer `Retry-After`
+from the server is honoured.
+
+```python
+session = MSTRRESTSession(base_url=..., retries=3, backoff_factor=1)
+```
+
+### Logging
+
+The library logs to the `mstr.requests` logger. At `DEBUG` it logs each
+request's method, URL, status and time taken; retries, re-logins and failed
+keep-alives are logged at `WARNING` or `INFO`. Headers, bodies, tokens and
+passwords are never logged, and any `user:password@` in a URL is removed.
+
+```python
+logging.getLogger("mstr.requests").setLevel(logging.DEBUG)
+```
+
+### Testing your code
+
+Pass an `httpx.MockTransport` as `transport=` to run your code against a fake
+server; see the [testing guide](https://mstr-rest-requests.readthedocs.io/en/latest/usage/testing.html).
 
 Extra constructor arguments (`verify`, `proxy`, `limits`, `http2`,
 `transport`, ...) are passed to the `httpx.Client`. Unlike httpx's own

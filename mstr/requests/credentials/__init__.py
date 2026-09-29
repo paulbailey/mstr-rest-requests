@@ -18,6 +18,8 @@
 Each submodule targets a specific secrets backend.  Install the
 corresponding package extra to pull in the required dependencies:
 
+* :mod:`~mstr.requests.credentials.env` -- environment variables (no
+  extra needed).
 * :mod:`~mstr.requests.credentials.aws` -- AWS Secrets Manager and SSM
   Parameter Store (``pip install mstr-rest-requests[aws]``).
 * :mod:`~mstr.requests.credentials.azure` -- Azure Key Vault

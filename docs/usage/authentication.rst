@@ -39,6 +39,16 @@ Identity token (delegation)
 A session created from an identity token is not logged out when the ``with``
 block ends, because the token's owner controls its lifetime.
 
+To hand a session's user to another process without sharing credentials,
+create an identity token from a logged-in session:
+
+.. code-block:: python
+
+   token = session.create_identity_token()
+
+The other process passes it as ``identity_token=`` and gets its own session
+as the same user.
+
 API key (trusted authentication)
 --------------------------------
 
@@ -100,13 +110,68 @@ contacts the server, rather than falling back to another login mode.
 
 The async sessions also accept ``async def`` functions; see :doc:`async`.
 
+.. _long-running-jobs:
+
+Long-running jobs
+-----------------
+
+Sessions time out on the server after a period without requests. Two options
+on :class:`~mstr.requests.AuthenticatedMSTRRESTSession` and
+:class:`~mstr.requests.AsyncAuthenticatedMSTRRESTSession` help long jobs:
+
+* ``relogin=True``: when a request fails because the session has expired
+  (``ERR009``), the session resolves its credentials again, logs in again and
+  sends the request once more. If several threads or tasks hit the expired
+  session at once, only one logs in. Requests to ``auth/`` endpoints and
+  requests sent with ``include_auth=False`` are not retried this way, and a
+  request body that can only be read once (a generator) can't be resent.
+* ``keepalive_interval=<seconds>``: while the ``with`` block runs, call
+  :meth:`~mstr.requests.MSTRRESTSession.extend_session` that often, in a
+  background thread (or a task, for the async class). Failures are logged as
+  warnings and don't stop the block. Choose an interval below the server's
+  session timeout.
+
+.. code-block:: python
+
+   with AuthenticatedMSTRRESTSession(
+       base_url="https://your-server/MicroStrategyLibrary/api/",
+       username="dave",
+       password=env("MSTR_PASSWORD"),
+       relogin=True,
+       keepalive_interval=240,
+   ) as session:
+       ...
+
 Credential providers
 --------------------
 
 The :mod:`mstr.requests.credentials` package has ready-made functions for
-common secrets managers. Each needs its own extra (see :doc:`installation`).
+environment variables and common secrets managers. The secrets managers each
+need their own extra (see :doc:`installation`).
 
-Each provider comes in two forms. The single-value form reads one secret or
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+
+Needs no extra. :func:`~mstr.requests.credentials.env.env` reads the variable
+each time the credential is resolved, and raises
+:class:`~mstr.requests.rest.exceptions.MissingCredentialException` if it is
+unset or empty, unless you pass ``default=``.
+
+.. code-block:: python
+
+   from mstr.requests.credentials.env import env
+
+   with AuthenticatedMSTRRESTSession(
+       base_url=env("MSTR_BASE_URL"),
+       username=env("MSTR_USERNAME"),
+       password=env("MSTR_PASSWORD"),
+   ) as session:
+       ...
+
+Secrets managers
+~~~~~~~~~~~~~~~~
+
+The secrets manager providers come in two forms. The single-value form reads one secret or
 parameter per credential. The multi-field form reads one secret holding a JSON
 object once, and hands out its fields.
 
