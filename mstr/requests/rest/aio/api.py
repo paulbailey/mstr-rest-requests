@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from mstr.requests.rest import core
 from mstr.requests.rest.api.utils import check_valid_session
-from mstr.requests.rest.exceptions import SessionException
+from mstr.requests.rest.exceptions import MSTRException, SessionException
 
 if TYPE_CHECKING:
     import httpx
@@ -113,6 +113,30 @@ class AsyncAuthMixin:
         return delegate_response
 
 
+    @check_valid_session
+    async def create_identity_token(self: _T) -> str:
+        """Create an identity token via ``POST /auth/identityToken``.
+
+        Another process can pass the token to :meth:`delegate` (or as
+        ``identity_token=`` to an authenticated session) to get its own
+        session as the same user, without the user's credentials.  The token
+        is not added to this session's headers.
+
+        Raises:
+            SessionException: If the session is not logged in.
+            MSTRException: If the response carries no identity token.
+        """
+        response = await self.post("auth/identityToken")
+        token = response.headers.get(core.MSTR_IDENTITY_TOKEN)
+        if token is None:
+            response.raise_for_status()
+            error = MSTRException("The server did not return an identity token")
+            error.status_code = response.status_code
+            error.response = response
+            raise error
+        return cast(str, token)
+
+
 class AsyncSessionsMixin:
     """Async mixin providing MicroStrategy session-management endpoints."""
 
@@ -165,6 +189,22 @@ class AsyncProjectsMixin:
         """Fetch the list of projects via ``GET /projects``."""
         response = await self.get("projects")
         return cast(list[dict[str, Any]], response.json())
+
+    async def resolve_project_id(self, project_name: str) -> str:
+        """Return the ID of the project called *project_name*.
+
+        Loads the project list with :meth:`load_projects` if it hasn't been
+        loaded, or if it doesn't contain *project_name* (the project may be
+        new).  Used for the ``project=`` argument of the request methods.
+
+        Raises:
+            ResourceNotFoundException: If no such project is available.
+        """
+        lookup = getattr(self, "projects_by_name", None)
+        if lookup is None or project_name not in lookup:
+            await self.load_projects()
+            lookup = self.projects_by_name
+        return core.project_id_for_name(lookup, project_name)
 
     async def load_projects(self) -> None:
         """Fetch projects and populate ``projects_by_name`` / ``projects_by_id`` look-ups."""

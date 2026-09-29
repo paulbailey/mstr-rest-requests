@@ -22,12 +22,15 @@ Nothing here performs I/O, so the same mixins serve both
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any, Dict as DictType, TypeVar
 
 import httpx
 
 from mstr.requests.rest import core
 from mstr.requests.rest.exceptions import SessionException
+
+logger = logging.getLogger(__name__)
 
 _T = TypeVar("_T", bound="HttpxSessionPersistenceMixin")
 
@@ -49,6 +52,8 @@ class HttpxClientStateMixin:
     client: httpx.Client | httpx.AsyncClient
     _owns_client: bool
     raise_on_http_error: bool = False
+    retries: int = 0
+    backoff_factor: float = 0.5
 
     @property
     def base_url(self) -> str:
@@ -125,6 +130,85 @@ class HttpxClientStateMixin:
         return core.build_request_headers(
             headers, self.headers, include_auth, project_id
         )
+
+    def _retry_delay_after_error(
+        self, method: str, error: httpx.TransportError, attempt: int
+    ) -> float | None:
+        """Return how long to wait before retrying after *error*, or ``None``.
+
+        Errors raised before the request was sent (connecting, or waiting for
+        a pooled connection) are retried for any method.  Other network
+        errors and timeouts are retried only for idempotent methods, since the
+        server may have acted on the request.
+        """
+        if attempt > self.retries:
+            return None
+        not_sent = isinstance(
+            error, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
+        )
+        may_retry = not_sent or (
+            method.upper() in core.IDEMPOTENT_METHODS
+            and isinstance(
+                error,
+                (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError),
+            )
+        )
+        if not may_retry:
+            return None
+        delay = core.retry_delay(attempt, self.backoff_factor)
+        logger.warning(
+            "%s %s failed (%s); retry %d of %d in %.1fs",
+            method.upper(),
+            core.redact_url(str(error.request.url)),
+            type(error).__name__,
+            attempt,
+            self.retries,
+            delay,
+        )
+        return delay
+
+    def _retry_delay_after_response(
+        self, method: str, response: httpx.Response, attempt: int
+    ) -> float | None:
+        """Return how long to wait before retrying *response*, or ``None``."""
+        if attempt > self.retries or not core.is_retryable_status(
+            method, response.status_code
+        ):
+            return None
+        delay = core.retry_delay(
+            attempt, self.backoff_factor, response.headers.get("Retry-After")
+        )
+        logger.warning(
+            "%s %s returned %d; retry %d of %d in %.1fs",
+            method.upper(),
+            core.redact_url(str(response.request.url)),
+            response.status_code,
+            attempt,
+            self.retries,
+            delay,
+        )
+        return delay
+
+    def _log_response(self, response: httpx.Response) -> None:
+        """Log the method, URL, status and time taken; never headers or bodies."""
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
+        try:
+            elapsed_ms = response.elapsed.total_seconds() * 1000
+        except RuntimeError:  # pragma: no cover - elapsed is set once read
+            elapsed_ms = 0.0
+        logger.debug(
+            "%s %s -> %d (%.0f ms)",
+            response.request.method,
+            core.redact_url(str(response.request.url)),
+            response.status_code,
+            elapsed_ms,
+        )
+
+    _NO_PROJECT_HELPERS = (
+        "Passing project= needs a session with the project helpers, "
+        "such as MSTRRESTSession"
+    )
 
     def _handle_response(self, response: httpx.Response) -> httpx.Response:
         if response.is_error:

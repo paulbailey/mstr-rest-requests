@@ -52,17 +52,24 @@ The session has the usual ``get``, ``post``, ``put``, ``patch``, ``delete``,
 (``params``, ``json``, ``headers``, ``timeout`` and so on) and return an
 :class:`httpx.Response`. URLs are relative to ``base_url``.
 
-Two extra keyword arguments cover the MicroStrategy headers:
+Three extra keyword arguments cover the MicroStrategy headers:
 
 * ``include_auth`` (default ``True``) sends the ``X-MSTR-AuthToken`` header.
   Pass ``False`` to send a request without it.
 * ``project_id`` sends the ``X-MSTR-ProjectID`` header that project-scoped
   endpoints need.
+* ``project`` does the same from a project name. The session fetches the
+  project list the first time you use a name, and again if a name isn't in
+  it, then raises
+  :class:`~mstr.requests.rest.exceptions.ResourceNotFoundException` if the
+  project still isn't there.
 
 .. code-block:: python
 
-   session.load_projects()
-   project_id = session.get_project_id("My Project")
+   response = session.get("reports/abc123", project="My Project")
+
+   # or look the ID up yourself
+   project_id = session.resolve_project_id("My Project")
    response = session.get("reports/abc123", project_id=project_id)
 
 Error responses from the API raise typed exceptions; see :doc:`errors`.

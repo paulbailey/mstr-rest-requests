@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0]
+### Added
+These apply to the httpx and async sessions; the deprecated requests-based sessions in `mstr.requests.compat` are unchanged.
+- `relogin=True` on `AuthenticatedMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession`: a request that fails because the session expired (`ERR009`) logs in again, with credentials resolved afresh, and is sent once more. Concurrent requests log in only once. Off by default.
+- `keepalive_interval=<seconds>` on the same classes calls `extend_session()` in the background (a thread, or a task for async) while the `with` block runs.
+- `retries=` and `backoff_factor=` on every session class retry connection failures for any method, and timeouts, network errors and 502/503/504 responses for `GET`, `HEAD`, `OPTIONS`, `PUT` and `DELETE`, with exponential backoff capped at 60 seconds. `Retry-After` is honoured. Off by default.
+- A `project=` argument on the request methods takes a project name and sends the matching `X-MSTR-ProjectID`, fetching the project list when needed. `resolve_project_id(name)` does the same lookup directly.
+- `create_identity_token()` returns an identity token for the session's user (`POST /auth/identityToken`) that another process can log in with.
+- Request logging on the `mstr.requests` logger: method, URL, status and time at `DEBUG`; retries at `WARNING`; re-logins at `INFO`. Headers, bodies and URL passwords are never logged.
+- `mstr.requests.credentials.env.env(name)`, a credential provider that reads an environment variable and raises `MissingCredentialException` if it is unset or empty.
+- A "Testing your code" docs page showing how to test code that uses the library with `httpx.MockTransport`, and a "Retries and logging" page.
+
+### Changed
+- An `X-MSTR-IdentityToken` response header is no longer copied into the session's headers.
+
 ## [2.2.0]
 ### Added
 - `raise_on_http_error=True` (a constructor argument on the httpx and async sessions, an attribute on the requests-based ones) raises the new `MSTRHTTPError` for error responses without a MicroStrategy JSON body, such as a proxy's HTML error page or an empty 502. Off by default, so such responses are still returned as before.

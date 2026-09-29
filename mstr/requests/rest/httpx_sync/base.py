@@ -15,11 +15,13 @@
 
 from __future__ import annotations
 
+import time
 from types import TracebackType
 from typing import Any, TypeVar
 
 import httpx
 
+from mstr.requests.rest import core
 from mstr.requests.rest.httpx_common import HttpxClientStateMixin
 
 _B = TypeVar("_B", bound="MSTRBaseSession")
@@ -52,6 +54,13 @@ class MSTRBaseSession(HttpxClientStateMixin):
             error response without a MicroStrategy JSON body, such as a
             proxy's HTML error page.  By default such responses are returned
             as they are.
+        retries: How many times to retry a request that failed to connect,
+            or (for ``GET``, ``HEAD``, ``OPTIONS``, ``PUT`` and ``DELETE``)
+            that timed out, hit a network error or got a ``502``, ``503`` or
+            ``504``.  Defaults to ``0``, no retries.
+        backoff_factor: Seconds to wait before the first retry; the wait
+            doubles for each further retry, up to 60 seconds.  A longer
+            ``Retry-After`` from the server is honoured.
         **client_kwargs: Any other :class:`httpx.Client` arguments,
             such as ``verify``, ``limits``, ``http2`` or ``transport``.
     """
@@ -64,9 +73,13 @@ class MSTRBaseSession(HttpxClientStateMixin):
         follow_redirects: bool = True,
         client: httpx.Client | None = None,
         raise_on_http_error: bool = False,
+        retries: int = 0,
+        backoff_factor: float = 0.5,
         **client_kwargs: Any,
     ) -> None:
         self.raise_on_http_error = raise_on_http_error
+        self.retries = retries
+        self.backoff_factor = backoff_factor
         self._owns_client = client is None
         if client is None:
             client = httpx.Client(
@@ -83,6 +96,7 @@ class MSTRBaseSession(HttpxClientStateMixin):
         *,
         include_auth: bool = True,
         project_id: str | None = None,
+        project: str | None = None,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> httpx.Response:
@@ -96,6 +110,10 @@ class MSTRBaseSession(HttpxClientStateMixin):
                 origin of *base_url*: absolute URLs and redirects to another
                 scheme, host or port go without it.
             project_id: If given, sent as the ``X-MSTR-ProjectID`` header.
+            project: A project name, sent as the matching
+                ``X-MSTR-ProjectID``.  The project list is fetched the first
+                time a name is used (and again for a name it doesn't
+                contain).  Pass *project* or *project_id*, not both.
             headers: Extra headers for this request.
             **kwargs: Passed through to :meth:`httpx.Client.request`.
 
@@ -109,12 +127,41 @@ class MSTRBaseSession(HttpxClientStateMixin):
                 <mstr.requests.rest.base.MSTRBaseSession.request>` for the
                 full mapping.
         """
+        core.check_project_arguments(project, project_id)
+        if project is not None:
+            project_id = self.resolve_project_id(project)
         request_headers = self._request_headers(url, headers, include_auth, project_id)
         kwargs["extensions"] = self._auth_scope_extensions(
             url, include_auth, kwargs.get("extensions")
         )
-        response = self.client.request(method, url, headers=request_headers, **kwargs)
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                response = self.client.request(
+                    method, url, headers=request_headers, **kwargs
+                )
+            except httpx.TransportError as error:
+                delay = self._retry_delay_after_error(method, error, attempt)
+                if delay is None:
+                    raise
+                time.sleep(delay)
+                continue
+            delay = self._retry_delay_after_response(method, response, attempt)
+            if delay is None:
+                break
+            response.close()
+            time.sleep(delay)
+        self._log_response(response)
         return self._handle_response(response)
+
+    def resolve_project_id(self, project_name: str) -> str:
+        """Return the ID of the project called *project_name*.
+
+        Needs the project helpers of the full session classes; see
+        ``ProjectsMixin.resolve_project_id``.
+        """
+        raise TypeError(self._NO_PROJECT_HELPERS)
 
     def get(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``GET`` request.  See :meth:`request`."""

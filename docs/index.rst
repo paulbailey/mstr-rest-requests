@@ -14,6 +14,8 @@ built on `httpx <https://www.python-httpx.org/>`_.
    usage/authentication
    usage/async
    usage/errors
+   usage/retries-and-logging
+   usage/testing
    usage/upgrading
    api
 

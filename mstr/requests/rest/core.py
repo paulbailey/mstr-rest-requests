@@ -33,6 +33,16 @@ from mstr.requests.rest import exceptions
 MSTR_AUTH_TOKEN = "X-MSTR-AuthToken"
 MSTR_PROJECT_ID_HEADER = "X-MSTR-ProjectID"
 MSTR_HEADER_PREFIX = "X-MSTR"
+MSTR_IDENTITY_TOKEN = "X-MSTR-IdentityToken"
+
+RETRY_STATUSES = frozenset({502, 503, 504})
+"""Response statuses that a session with ``retries`` set will retry."""
+
+IDEMPOTENT_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})
+"""Methods that are safe to send again after the server may have seen them."""
+
+MAX_RETRY_DELAY = 60.0
+"""Upper bound, in seconds, on the wait between two attempts."""
 
 Credential: TypeAlias = str | Callable[[], str] | None
 """A credential value: either a plain string or a zero-argument callable that
@@ -198,11 +208,17 @@ def build_request_headers(
 def mstr_response_headers(
     response_headers: Iterable[tuple[str, str]],
 ) -> dict[str, str]:
-    """Return the ``X-MSTR*`` headers from a successful response's header items."""
+    """Return the ``X-MSTR*`` headers from a successful response's header items.
+
+    ``X-MSTR-IdentityToken`` is left out: it is returned to the caller by
+    ``create_identity_token()``, and must not become a session-wide header.
+    """
+    identity_token = MSTR_IDENTITY_TOKEN.upper()
     return {
         key: value
         for key, value in response_headers
         if key.upper().startswith(MSTR_HEADER_PREFIX)
+        and key.upper() != identity_token
     }
 
 
@@ -327,3 +343,72 @@ def project_lookups(
         by_name[project["name"]] = project["id"]
         by_id[project["id"]] = project["name"]
     return by_name, by_id
+
+
+def is_retryable_status(method: str, status_code: int) -> bool:
+    """Return ``True`` if a response with *status_code* should be retried.
+
+    Only ``502``, ``503`` and ``504`` from an idempotent *method* are
+    retried, since the server may have acted on anything else.
+    """
+    return status_code in RETRY_STATUSES and method.upper() in IDEMPOTENT_METHODS
+
+
+def retry_delay(
+    attempt: int, backoff_factor: float, retry_after: str | None = None
+) -> float:
+    """Return the seconds to wait before retry number *attempt* (from 1).
+
+    The delay is ``backoff_factor * 2 ** (attempt - 1)``, or the server's
+    ``Retry-After`` seconds when that is longer, capped at
+    :data:`MAX_RETRY_DELAY`.  A ``Retry-After`` HTTP date is ignored.
+    """
+    delay = backoff_factor * float(2 ** (attempt - 1))
+    if retry_after is not None:
+        try:
+            delay = max(delay, float(retry_after))
+        except ValueError:
+            pass
+    return max(0.0, min(delay, MAX_RETRY_DELAY))
+
+
+def redact_url(url: str) -> str:
+    """Return *url* without any ``user:password@`` part, for logging."""
+    parts = urlsplit(url)
+    if "@" not in parts.netloc:
+        return url
+    return parts._replace(netloc=parts.netloc.rsplit("@", 1)[1]).geturl()
+
+
+def is_session_expired(error: BaseException) -> bool:
+    """Return ``True`` if *error* says the session is invalid or timed out (``ERR009``)."""
+    return (
+        isinstance(error, exceptions.SessionException)
+        and getattr(error, "code", None) == "ERR009"
+    )
+
+
+def is_auth_url(url: str) -> bool:
+    """Return ``True`` if *url* is an ``auth/`` endpoint (login, logout, delegate...)."""
+    path = urlsplit(url).path.lstrip("/")
+    return path.startswith("auth/") or "/auth/" in path
+
+
+def check_project_arguments(project: str | None, project_id: str | None) -> None:
+    """Raise :class:`ValueError` if both *project* and *project_id* are given."""
+    if project is not None and project_id is not None:
+        raise ValueError("Pass either project or project_id, not both")
+
+
+def project_id_for_name(lookup: Mapping[str, str], name: str) -> str:
+    """Return the ID of the project called *name* in *lookup*.
+
+    Raises:
+        ResourceNotFoundException: If there is no such project.
+    """
+    try:
+        return lookup[name]
+    except KeyError:
+        raise exceptions.ResourceNotFoundException(
+            f"No project named {name!r} is available to this session"
+        ) from None

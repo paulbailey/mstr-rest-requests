@@ -91,6 +91,12 @@ Credential providers
 
 .. automodule:: mstr.requests.credentials
 
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mstr.requests.credentials.env
+   :members:
+
 AWS
 ~~~
 
