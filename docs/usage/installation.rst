@@ -20,19 +20,15 @@ To use the built-in credential providers, install the corresponding extra:
    pip install mstr-rest-requests[azure]  # Azure Key Vault
    pip install mstr-rest-requests[gcp]    # Google Cloud Secret Manager
 
-To use the async sessions, install the ``async`` extra, which adds
-`httpx <https://www.python-httpx.org/>`_:
+The deprecated requests-based sessions in :mod:`mstr.requests.compat` need
+the ``requests`` extra:
 
 .. code-block:: bash
 
-   pip install mstr-rest-requests[async]
+   pip install mstr-rest-requests[requests]
 
-To try the httpx-based synchronous sessions that become the default in 2.0,
-install the ``httpx`` extra:
-
-.. code-block:: bash
-
-   pip install mstr-rest-requests[httpx]
+The ``async`` and ``httpx`` extras from 1.x still install, but add nothing:
+httpx is a core dependency since 2.0.
 
 Development
 -----------

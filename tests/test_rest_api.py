@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from requests import Response
 
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 from mstr.requests.rest.base import MSTR_AUTH_TOKEN
 

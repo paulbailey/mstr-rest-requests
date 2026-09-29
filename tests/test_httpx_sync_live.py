@@ -2,7 +2,7 @@
 
 import pytest
 
-from mstr.requests.httpx import AuthenticatedMSTRRESTSession, MSTRRESTSession
+from mstr.requests import AuthenticatedMSTRRESTSession, MSTRRESTSession
 from mstr.requests.rest import exceptions
 
 BASE_URL = "https://demo.microstrategy.com/MicroStrategyLibrary/api/"

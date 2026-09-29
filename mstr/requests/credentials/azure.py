@@ -81,7 +81,7 @@ class KeyVaultSecret:
     The secret is fetched lazily on the first ``.field()`` resolution and
     cached so that all fields share one API call.  Each ``.field(key)`` call
     returns a zero-argument callable compatible with
-    :data:`~mstr.requests.rest.authenticated_session.Credential`.
+    :data:`~mstr.requests.Credential`.
 
     Example::
 

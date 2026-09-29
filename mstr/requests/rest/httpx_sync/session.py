@@ -32,8 +32,8 @@ class MSTRRESTSession(
 
     The httpx counterpart of the requests-based
     :class:`~mstr.requests.MSTRRESTSession`: the same methods, returning
-    :class:`httpx.Response` objects.  This is the class that
-    ``mstr.requests.MSTRRESTSession`` will become in 2.0.  Use ``with`` (or
+    :class:`httpx.Response` objects.  Exported as
+    :class:`mstr.requests.MSTRRESTSession`.  Use ``with`` (or
     :meth:`close`) to release the underlying connection pool; login and
     logout are up to you.  For automatic login/logout use
     :class:`~mstr.requests.rest.httpx_sync.AuthenticatedMSTRRESTSession`.

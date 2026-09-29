@@ -1,9 +1,9 @@
 mstr-rest-requests
 ==================
 
-An extension to the `requests <https://docs.python-requests.org/>`_ ``Session``
-object, providing a more straightforward interface for the
-`MicroStrategy REST API <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/>`_.
+A straightforward sync and async client for the
+`MicroStrategy REST API <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/>`_,
+built on `httpx <https://www.python-httpx.org/>`_.
 
 .. toctree::
    :maxdepth: 2
@@ -12,7 +12,7 @@ object, providing a more straightforward interface for the
    usage/installation
    usage/quickstart
    usage/async
-   usage/httpx
+   usage/upgrading
    api
 
 

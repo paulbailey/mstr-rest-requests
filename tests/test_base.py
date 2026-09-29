@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from requests_toolbelt.sessions import BaseUrlSession
 
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 from mstr.requests.rest.base import MSTR_AUTH_TOKEN, MSTR_PROJECT_ID_HEADER
 

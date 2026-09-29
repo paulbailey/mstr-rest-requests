@@ -1,4 +1,4 @@
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 
 
 def test_project_id():

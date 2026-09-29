@@ -1,5 +1,5 @@
-from mstr.requests import AuthenticatedMSTRRESTSession
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import AuthenticatedMSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 
 
 def test_dict_methods():

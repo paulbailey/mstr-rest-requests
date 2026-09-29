@@ -26,6 +26,6 @@ corresponding package extra to pull in the required dependencies:
   (``pip install mstr-rest-requests[gcp]``).
 """
 
-from mstr.requests.rest.authenticated_session import Credential
+from mstr.requests.rest.core import Credential
 
 __all__ = ["Credential"]

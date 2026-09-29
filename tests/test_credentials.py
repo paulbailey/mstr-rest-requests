@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from mstr.requests import AuthenticatedMSTRRESTSession, Credential
+from mstr.requests import compat
 from mstr.requests.rest.authenticated_session import _resolve
 
 
@@ -25,8 +26,10 @@ class TestResolve:
 
 
 class TestCallableCredentials:
+    session_class = AuthenticatedMSTRRESTSession
+
     def _make_session(self, **kwargs):
-        session = AuthenticatedMSTRRESTSession(base_url=BASE_URL, **kwargs)
+        session = self.session_class(base_url=BASE_URL, **kwargs)
         session.login = MagicMock()
         session.delegate = MagicMock()
         session.logout = MagicMock()
@@ -95,7 +98,7 @@ class TestCallableCredentials:
         session.login.assert_called_once_with(username=None, password=None, application_type=8)
 
     def test_callable_base_url(self):
-        session = AuthenticatedMSTRRESTSession(
+        session = self.session_class(
             base_url=lambda: "https://resolved.example.com/api/",
             username="user",
             password="pass",
@@ -112,8 +115,15 @@ class TestCallableCredentials:
 
     def test_callable_base_url_not_resolved_at_init(self):
         provider = MagicMock(return_value="https://example.com/api/")
-        AuthenticatedMSTRRESTSession(base_url=provider)
+        self.session_class(base_url=provider)
         provider.assert_not_called()
+
+
+
+class TestCallableCredentialsCompat(TestCallableCredentials):
+    """The same checks against the deprecated requests-based session."""
+
+    session_class = compat.AuthenticatedMSTRRESTSession
 
 
 class TestSecretsManagerHelper:

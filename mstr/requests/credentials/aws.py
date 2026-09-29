@@ -82,7 +82,7 @@ class SecretsManagerSecret:
     The secret is fetched lazily on the first ``.field()`` resolution and
     cached so that all fields share one API call.  Each ``.field(key)`` call
     returns a zero-argument callable compatible with
-    :data:`~mstr.requests.rest.authenticated_session.Credential`.
+    :data:`~mstr.requests.Credential`.
 
     Example::
 
@@ -162,7 +162,7 @@ class ParameterStoreValues:
     """A group of SSM Parameter Store parameters that share a cache.
 
     Each :meth:`parameter` call returns a zero-argument callable compatible
-    with :data:`~mstr.requests.rest.authenticated_session.Credential`.
+    with :data:`~mstr.requests.Credential`.
     Parameters are fetched individually on first resolution and cached so
     that subsequent resolutions of the same name do not make extra API
     calls.
