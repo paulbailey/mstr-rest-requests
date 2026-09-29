@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+from mstr.requests.rest import core
 from mstr.requests.rest.exceptions import SessionException
 
 from .utils import check_valid_session
@@ -44,14 +45,9 @@ class ProjectsMixin:
         After calling this method you can resolve project names to IDs
         with :meth:`get_project_id`.
         """
-        response = self.get_projects()
-        projects_by_name = dict()
-        projects_by_id = dict()
-        for project in response:
-            projects_by_name[project["name"]] = project["id"]
-            projects_by_id[project["id"]] = project["name"]
-        self.projects_by_name = projects_by_name
-        self.projects_by_id = projects_by_id
+        self.projects_by_name, self.projects_by_id = core.project_lookups(
+            self.get_projects()
+        )
 
     def get_project_id(self, project_name: str) -> str | None:
         """Return the project ID for *project_name*, or ``None`` if not found.

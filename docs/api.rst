@@ -22,6 +22,12 @@ Base session
    :members:
    :show-inheritance:
 
+Core helpers
+------------
+
+.. automodule:: mstr.requests.rest.core
+   :members:
+
 Protocol
 --------
 

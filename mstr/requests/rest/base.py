@@ -15,17 +15,17 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import cast
 
 from requests import Response
 from requests_toolbelt.sessions import BaseUrlSession
 
-from mstr.requests.rest import exceptions
-
-MSTR_AUTH_TOKEN = "X-MSTR-AuthToken"
-MSTR_PROJECT_ID_HEADER = "X-MSTR-ProjectID"
-MSTR_HEADER_PREFIX = "X-MSTR"
+from mstr.requests.rest import core
+from mstr.requests.rest.core import (  # noqa: F401 -- re-exported for compatibility
+    MSTR_AUTH_TOKEN,
+    MSTR_HEADER_PREFIX,
+    MSTR_PROJECT_ID_HEADER,
+)
 
 
 class MSTRBaseSession(BaseUrlSession):
@@ -83,54 +83,16 @@ class MSTRBaseSession(BaseUrlSession):
             MSTRException: On any other MicroStrategy error response.
         """
 
-        # Warn if the session and request in combination contain an extra `//`; that's probably in error.
-        if url.count("//") > 1:
-            warnings.warn(
-                f"Your fully composed request ({url}) contains a `//` in the path, which is probably an error."
-            )
+        core.warn_on_double_slash(url)
 
-        headers = kwargs.get("headers", {})
-
-        if include_auth and MSTR_AUTH_TOKEN in self.headers:
-            headers.update({MSTR_AUTH_TOKEN: self.headers[MSTR_AUTH_TOKEN]})
-
-        if project_id is not None:
-            headers.update({MSTR_PROJECT_ID_HEADER: project_id})
-
-        kwargs["headers"] = headers
+        kwargs["headers"] = core.build_request_headers(
+            kwargs.get("headers"), self.headers, include_auth, project_id
+        )
 
         response = super(MSTRBaseSession, self).request(method, url, *args, **kwargs)
 
-        if not response.ok and response.headers["content-type"] == "application/json":
-            try:
-                resp_json = response.json()
-                try:
-                    resp_code = resp_json["code"]
-                except KeyError:
-                    raise exceptions.MSTRUnknownException(**resp_json)
-                match resp_code:
-                    case "ERR003":
-                        raise exceptions.LoginFailureException(**resp_json)
-                    case "ERR002" | "ERR0013":
-                        raise exceptions.IServerException(**resp_json)
-                    case "ERR004":
-                        raise exceptions.ResourceNotFoundException(**resp_json)
-                    case "ERR005" | "ERR006" | "ERR007":
-                        raise exceptions.InvalidRequestException(**resp_json)
-                    case "ERR009":
-                        raise exceptions.SessionException(**resp_json)
-                    case "ERR0014" | "ERR0017":
-                        raise exceptions.InsufficientPrivilegesException(**resp_json)
-                    case "ERR0015":
-                        raise exceptions.ObjectAlreadyExistsException(**resp_json)
-                    case _:
-                        raise exceptions.MSTRException(**resp_json)
-            except ValueError:
-                raise exceptions.MSTRException(
-                    "Couldn't parse response: {}".format(response.text)
-                )
-        if response.ok:
-            for key, value in response.headers.items():
-                if key.upper().startswith("X-MSTR"):
-                    self.headers.update({key: value})
+        if not response.ok:
+            core.raise_for_mstr_error(response)
+        else:
+            self.headers.update(core.mstr_response_headers(response.headers.items()))
         return cast(Response, response)

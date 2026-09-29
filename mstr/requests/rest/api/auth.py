@@ -17,6 +17,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar
 
+from mstr.requests.rest import core
+
 if TYPE_CHECKING:
     from requests import Response
 
@@ -55,30 +57,7 @@ class AuthMixin:
         Raises:
             requests.HTTPError: If the server returns a non-204 status.
         """
-        if username is not None and password is not None:
-            data = {
-                "username": username,
-                "password": password,
-                "loginMode": 1,
-                "applicationType": application_type,
-            }
-        elif api_key is not None:
-            data = {
-                "username": api_key,
-                "loginMode": 4096,
-                "applicationType": application_type,
-            }
-        elif username is not None and password is None:
-            data = {
-                "username": username,
-                "loginMode": 4096,
-                "applicationType": application_type,
-            }
-        else:
-            data = {
-                "loginMode": 8,
-                "applicationType": application_type,
-            }
+        data = core.login_payload(username, password, api_key, application_type)
         login_response = self.post("auth/login", json=data)
         if login_response.status_code != 204:
             login_response.raise_for_status()
@@ -136,7 +115,7 @@ class AuthMixin:
             requests.HTTPError: If the server returns a non-204 status.
         """
         delegate_response = self.post(
-            "auth/delegate", json={"loginMode": -1, "identityToken": identity_token}
+            "auth/delegate", json=core.delegate_payload(identity_token)
         )
         if delegate_response.status_code != 204:
             delegate_response.raise_for_status()
