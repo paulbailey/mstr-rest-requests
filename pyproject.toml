@@ -1,6 +1,6 @@
 [project]
 name = "mstr-rest-requests"
-version = "1.1.0"
+version = "1.2.0"
 description = "Easily make requests of the MicroStrategy REST API"
 authors = [{ name = "Paul Bailey", email = "bailey@dreamshake.net" }]
 requires-python = ">=3.10, <4"
@@ -16,6 +16,7 @@ aws = ["boto3"]
 azure = ["azure-identity", "azure-keyvault-secrets"]
 gcp = ["google-cloud-secret-manager"]
 docs = ["sphinx>=7,<9", "sphinx-rtd-theme"]
+async = ["httpx>=0.28.1", "anyio>=4"]
 
 [project.urls]
 Documentation = "https://mstr-rest-requests.readthedocs.io/"
@@ -31,6 +32,7 @@ dev = [
     "types-requests>=2.25.11,<3",
     "black>=26.1,<27",
     "pre-commit",
+    "trio>=0.34.0",
 ]
 
 [tool.hatch.build.targets.sdist]

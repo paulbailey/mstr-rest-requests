@@ -20,6 +20,13 @@ To use the built-in credential providers, install the corresponding extra:
    pip install mstr-rest-requests[azure]  # Azure Key Vault
    pip install mstr-rest-requests[gcp]    # Google Cloud Secret Manager
 
+To use the async sessions, install the ``async`` extra, which adds
+`httpx <https://www.python-httpx.org/>`_:
+
+.. code-block:: bash
+
+   pip install mstr-rest-requests[async]
+
 Development
 -----------
 

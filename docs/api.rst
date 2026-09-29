@@ -15,6 +15,27 @@ Session classes
 
 .. autodata:: mstr.requests.Credential
 
+Async session classes
+---------------------
+
+.. autoclass:: mstr.requests.rest.aio.AsyncMSTRRESTSession
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: mstr.requests.rest.aio.AsyncAuthenticatedMSTRRESTSession
+   :members:
+   :show-inheritance:
+
+.. autodata:: mstr.requests.rest.aio.AsyncCredential
+
+.. autoclass:: mstr.requests.rest.aio.AsyncMSTRBaseSession
+   :members:
+   :show-inheritance:
+
+.. autoclass:: mstr.requests.rest.aio.AsyncMSTRSessionProtocol
+   :members:
+
 Base session
 ------------
 

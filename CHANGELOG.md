@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0]
+### Added
+- Async sessions built on httpx: `AsyncMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession`, importable from `mstr.requests` (or `mstr.requests.rest.aio`). Install with the new `async` extra: `pip install mstr-rest-requests[async]`.
+- The async sessions mirror the synchronous API method for method, work under asyncio and trio, and serialise to the same `to_dict()` format.
+- `AsyncCredential`: credentials for the async sessions may also be `async def` callables; synchronous callables run in a worker thread.
+- `check_valid_session` now supports coroutine methods.
+
 ## [1.1.0]
 ### Added
 - `mstr.requests.rest.core`: transport-independent helpers for MicroStrategy headers, error translation, login/delegate payloads and project look-ups. The session classes now use these, preparing for async support.
@@ -23,5 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session persistence: serialise/restore sessions via `json()` and `from_dict()`.
 - Typed exceptions for MicroStrategy API errors (see `mstr.requests.rest.exceptions`).
 
+[1.2.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v1.2.0
 [1.1.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v1.1.0
 [1.0.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v1.0.0
