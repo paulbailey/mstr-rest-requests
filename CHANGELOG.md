@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1]
+### Changed
+- Updated locked development dependencies (cryptography 50.0.0, pyasn1 0.6.4). No changes to the package itself.
+- The publish workflow now fails if the release tag does not match the version in `pyproject.toml`.
+
 ## [2.0.0]
 ### Changed (breaking)
 - `mstr.requests.MSTRRESTSession`, `AuthenticatedMSTRRESTSession` and `MSTRSessionProtocol` are now the httpx-based classes introduced in 1.3. They keep the same names, arguments and methods but return `httpx.Response`. See "Upgrading from 1.x" in the README or docs.
