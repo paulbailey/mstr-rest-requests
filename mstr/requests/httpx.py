@@ -13,18 +13,13 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""httpx-based synchronous sessions (opt-in until 2.0).
+"""Alias for the httpx-based sessions, kept for code written against 1.3.
 
-Requires the ``httpx`` extra: ``pip install mstr-rest-requests[httpx]``.
-The classes have the same names and arguments as those in
-:mod:`mstr.requests`, so switching is a change of import::
-
-    from mstr.requests.httpx import AuthenticatedMSTRRESTSession
-
-In 2.0 these become the default classes exported by :mod:`mstr.requests`.
+Since 2.0 these are the default classes exported by :mod:`mstr.requests`,
+so new code should import from there.
 """
 
-from .rest.authenticated_session import Credential
+from .rest.core import Credential
 from .rest.httpx_sync import (
     AuthenticatedMSTRRESTSession,
     MSTRRESTSession,

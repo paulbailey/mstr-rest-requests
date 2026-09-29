@@ -40,19 +40,18 @@ class MSTRRESTSession(
     lifecycle, or prefer :class:`~mstr.requests.rest.authenticated_session.AuthenticatedMSTRRESTSession`
     for automatic login/logout via a context manager.
 
-    .. note::
-       In 2.0 this class will be replaced by the httpx-based
-       :class:`mstr.requests.httpx.MSTRRESTSession`, which has the same
-       methods but returns :class:`httpx.Response` objects.  Creating an
-       instance emits a :class:`PendingDeprecationWarning`.
+    .. deprecated:: 2.0
+       Use the httpx-based :class:`mstr.requests.MSTRRESTSession`.  This
+       class is available as :class:`mstr.requests.compat.MSTRRESTSession`
+       and will be removed in 3.0.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         warnings.warn(
-            "The requests-based MSTRRESTSession will be replaced by an httpx-based "
-            "implementation in mstr-rest-requests 2.0. To try it now, install the "
-            "'httpx' extra and import from mstr.requests.httpx.",
-            PendingDeprecationWarning,
+            "The requests-based sessions in mstr.requests.compat are deprecated "
+            "and will be removed in mstr-rest-requests 3.0. Use the httpx-based "
+            "sessions exported by mstr.requests instead.",
+            DeprecationWarning,
             stacklevel=2,
         )
         super().__init__(*args, **kwargs)

@@ -2,9 +2,8 @@ Async usage
 ===========
 
 ``AsyncMSTRRESTSession`` and ``AsyncAuthenticatedMSTRRESTSession`` are the
-async counterparts of the synchronous sessions. They need the ``async`` extra
-(``pip install mstr-rest-requests[async]``), are built on
-`httpx <https://www.python-httpx.org/>`_, and work with asyncio and trio.
+async counterparts of the synchronous sessions. Like them, they are built on
+`httpx <https://www.python-httpx.org/>`_, and they work with asyncio and trio.
 
 .. code-block:: python
 

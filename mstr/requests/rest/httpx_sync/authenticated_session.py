@@ -18,7 +18,7 @@ from __future__ import annotations
 from types import TracebackType
 from typing import Any
 
-from mstr.requests.rest.authenticated_session import Credential, _resolve
+from mstr.requests.rest.core import Credential, resolve_credential as _resolve
 
 from .session import MSTRRESTSession
 

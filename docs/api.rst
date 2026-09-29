@@ -15,78 +15,60 @@ Session classes
 
 .. autodata:: mstr.requests.Credential
 
-httpx session classes
----------------------
-
-.. autoclass:: mstr.requests.httpx.MSTRRESTSession
-   :members:
-   :inherited-members:
-   :show-inheritance:
-
-.. autoclass:: mstr.requests.httpx.AuthenticatedMSTRRESTSession
-   :members:
-   :show-inheritance:
-
 .. autoclass:: mstr.requests.rest.httpx_sync.base.MSTRBaseSession
    :members:
    :show-inheritance:
 
-.. autoclass:: mstr.requests.httpx.MSTRSessionProtocol
+.. autoclass:: mstr.requests.MSTRSessionProtocol
    :members:
 
 Async session classes
 ---------------------
 
-.. autoclass:: mstr.requests.rest.aio.AsyncMSTRRESTSession
+.. autoclass:: mstr.requests.AsyncMSTRRESTSession
    :members:
    :inherited-members:
    :show-inheritance:
 
-.. autoclass:: mstr.requests.rest.aio.AsyncAuthenticatedMSTRRESTSession
+.. autoclass:: mstr.requests.AsyncAuthenticatedMSTRRESTSession
    :members:
    :show-inheritance:
 
-.. autodata:: mstr.requests.rest.aio.AsyncCredential
+.. autodata:: mstr.requests.AsyncCredential
 
 .. autoclass:: mstr.requests.rest.aio.AsyncMSTRBaseSession
    :members:
    :show-inheritance:
 
-.. autoclass:: mstr.requests.rest.aio.AsyncMSTRSessionProtocol
+.. autoclass:: mstr.requests.AsyncMSTRSessionProtocol
    :members:
-
-Base session
-------------
-
-.. autoclass:: mstr.requests.rest.base.MSTRBaseSession
-   :members:
-   :show-inheritance:
 
 Core helpers
 ------------
 
 .. automodule:: mstr.requests.rest.core
    :members:
+   :exclude-members: Credential
 
-Protocol
---------
+Deprecated requests-based classes
+---------------------------------
 
-.. autoclass:: mstr.requests.rest.protocols.MSTRSessionProtocol
+.. automodule:: mstr.requests.compat
+
+.. autoclass:: mstr.requests.compat.MSTRRESTSession
    :members:
+   :inherited-members:
+   :show-inheritance:
 
-Mixins
-------
-
-.. autoclass:: mstr.requests.rest.api.auth.AuthMixin
+.. autoclass:: mstr.requests.compat.AuthenticatedMSTRRESTSession
    :members:
+   :show-inheritance:
 
-.. autoclass:: mstr.requests.rest.api.sessions.SessionsMixin
+.. autoclass:: mstr.requests.compat.MSTRBaseSession
    :members:
+   :show-inheritance:
 
-.. autoclass:: mstr.requests.rest.api.projects.ProjectsMixin
-   :members:
-
-.. autoclass:: mstr.requests.rest.mixins.SessionPersistenceMixin
+.. autoclass:: mstr.requests.compat.MSTRSessionProtocol
    :members:
 
 Exceptions

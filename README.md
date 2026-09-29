@@ -1,6 +1,6 @@
 # mstr-rest-requests
 
-An extension to the excellent [requests](https://docs.python-requests.org/) `Session` object, providing a more straightforward interface for the [MicroStrategy REST API](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/).
+A straightforward sync and async client for the [MicroStrategy REST API](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/), built on [httpx](https://www.python-httpx.org/).
 
 ![Python package](https://github.com/paulbailey/mstr-rest-requests/workflows/Python%20package/badge.svg)
 
@@ -20,8 +20,7 @@ To use the built-in credential providers, install the corresponding extra:
 pip install mstr-rest-requests[aws]    # AWS Secrets Manager & SSM Parameter Store
 pip install mstr-rest-requests[azure]  # Azure Key Vault
 pip install mstr-rest-requests[gcp]    # Google Cloud Secret Manager
-pip install mstr-rest-requests[async]  # Async sessions (httpx)
-pip install mstr-rest-requests[httpx]  # httpx-based sync sessions (the 2.0 default)
+pip install mstr-rest-requests[requests]  # Deprecated requests-based sessions (mstr.requests.compat)
 ```
 
 ## Quick start
@@ -306,8 +305,9 @@ response = session.get("reports/abc123", project_id=project_id)
 
 ## Making requests
 
-`MSTRRESTSession` extends `requests.Session`, so the full requests API is
-available. Two extra keyword arguments are added to every request method:
+`MSTRRESTSession` wraps an `httpx.Client` (available as `session.client`).
+Its request methods take the usual httpx arguments (`params`, `json`,
+`headers`, `timeout`, ...) plus two extra keyword arguments:
 
 - `include_auth` (default `True`) -- attach the `X-MSTR-AuthToken` header.
 - `project_id` -- attach the `X-MSTR-ProjectID` header for project-scoped
@@ -317,12 +317,15 @@ available. Two extra keyword arguments are added to every request method:
 response = session.get("reports/abc123", project_id="B7CA92...")
 ```
 
+Extra constructor arguments (`verify`, `proxy`, `limits`, `http2`,
+`transport`, ...) are passed to the `httpx.Client`. Unlike httpx's own
+defaults, there is no timeout unless you pass `timeout=`, and redirects are
+followed.
+
 ## Async usage
 
-Install the `async` extra (`pip install mstr-rest-requests[async]`) to get
-`AsyncMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession`. They are
-built on [httpx](https://www.python-httpx.org/), work with asyncio and trio,
-and mirror the synchronous classes method for method:
+`AsyncMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession` mirror the
+synchronous classes method for method and work with asyncio and trio:
 
 ```python
 import asyncio
@@ -353,34 +356,17 @@ Differences from the synchronous classes:
 - Credentials can also be `async def` callables. Plain callables, including
   the built-in credential providers, run in a worker thread so they don't
   block the event loop.
-- The session wraps an `httpx.AsyncClient`, available as `session.client`.
-  Extra keyword arguments (`verify`, `limits`, `http2`, `transport`, ...) are
-  passed to it. As with the synchronous session, there is no timeout by
-  default and redirects are followed.
+- The session wraps an `httpx.AsyncClient`, available as `session.client`,
+  with the same constructor arguments and defaults as the synchronous session.
 - Use `async with` (or `await session.aclose()`) to release connections.
 - `to_dict()` / `from_dict()` use the same format as the synchronous session,
   so a session can be handed between the two.
 
-## httpx-based sync sessions
+## Upgrading from 1.x
 
-In 2.0 the synchronous classes will be built on httpx instead of requests,
-so that the sync and async paths share one HTTP library. You can try them
-now: install the `httpx` extra and change the import. The class names and
-arguments are the same.
-
-```python
-from mstr.requests.httpx import AuthenticatedMSTRRESTSession
-
-with AuthenticatedMSTRRESTSession(
-    base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/",
-    username="dave",
-    password="hellodave",
-) as session:
-    projects = session.get_projects()
-```
-
-Creating a requests-based session now emits a `PendingDeprecationWarning`
-(hidden by default outside tests). Things to check when switching:
+Since 2.0 the sessions are built on [httpx](https://www.python-httpx.org/)
+instead of requests. The class names, arguments and methods are the same, so
+most code keeps working. The differences:
 
 - Methods return `httpx.Response`. Use `response.is_success` instead of
   `response.ok`. `raise_for_status()` raises `httpx.HTTPStatusError`, and
@@ -391,12 +377,21 @@ Creating a requests-based session now emits a `PendingDeprecationWarning`
   `requests.Session`. Configure TLS, proxies, retries and connection limits
   with constructor arguments (`verify`, `proxy`, `transport`, `limits`)
   instead of `session.mount()` and adapters.
-- No timeout by default and redirects are followed, as with requests.
 - Relative URLs are always appended to `base_url`, so a leading `/` or a
   missing trailing slash no longer drops the `/api` segment.
 - Use `with` or `session.close()` to release connections.
-- `to_dict()` / `from_dict()` use the same format, so sessions can be handed
-  between the requests, httpx and async classes.
+- Saved sessions (`to_dict()` / `json()`) from 1.x load unchanged.
+
+If you need the 1.x behaviour while you migrate, the requests-based classes
+are still available, with a `DeprecationWarning`, until 3.0:
+
+```bash
+pip install mstr-rest-requests[requests]
+```
+
+```python
+from mstr.requests.compat import AuthenticatedMSTRRESTSession
+```
 
 ## Exceptions
 

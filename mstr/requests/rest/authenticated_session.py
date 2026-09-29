@@ -15,28 +15,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from types import TracebackType
-from typing import TypeAlias
 
+from .core import Credential, resolve_credential
 from .session import MSTRRESTSession
 
-Credential: TypeAlias = str | Callable[[], str] | None
-"""A credential value: either a plain string or a zero-argument callable that
-returns a string.  Callables are resolved lazily when the session's context
-manager is entered, making it easy to integrate secrets managers or other
-deferred-lookup strategies."""
+# Kept for backwards compatibility; both now live in core.
+_resolve = resolve_credential
 
-
-def _resolve(value: Credential) -> str | None:
-    """Resolve a :data:`Credential` to its string value.
-
-    If *value* is callable it is invoked and the result returned; otherwise
-    *value* is returned as-is.
-    """
-    if callable(value):
-        return value()
-    return value
+__all__ = ["AuthenticatedMSTRRESTSession", "Credential"]
 
 
 class AuthenticatedMSTRRESTSession(MSTRRESTSession):
@@ -102,7 +89,11 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             self.login(api_key=api_key, application_type=self._application_type)
             self._used_delegate = False
         else:
-            self.login(username=username, password=password, application_type=self._application_type)
+            self.login(
+                username=username,
+                password=password,
+                application_type=self._application_type,
+            )
             self._used_delegate = False
         return self
 

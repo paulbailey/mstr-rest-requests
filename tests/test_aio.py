@@ -2,13 +2,12 @@
 
 import functools
 import json
-import sys
 import threading
 
 import httpx
 import pytest
 
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 from mstr.requests.rest.aio import (
     AsyncAuthenticatedMSTRRESTSession,
@@ -402,21 +401,15 @@ async def test_authenticated_session_closes_client_on_login_failure(server):
 
 
 # ---------------------------------------------------------------------------
-# Lazy top-level import
+# Top-level exports
 # ---------------------------------------------------------------------------
 
 
-def test_top_level_lazy_import():
+def test_top_level_exports():
     import mstr.requests
 
     assert mstr.requests.AsyncMSTRRESTSession is AsyncMSTRRESTSession
-    with pytest.raises(AttributeError):
-        mstr.requests.DoesNotExist
-
-
-def test_top_level_import_without_async_extra(monkeypatch):
-    import mstr.requests
-
-    monkeypatch.setitem(sys.modules, "mstr.requests.rest.aio", None)
-    with pytest.raises(ImportError, match=r"mstr-rest-requests\[async\]"):
-        mstr.requests.AsyncMSTRRESTSession
+    assert (
+        mstr.requests.AsyncAuthenticatedMSTRRESTSession
+        is AsyncAuthenticatedMSTRRESTSession
+    )

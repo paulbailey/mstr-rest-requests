@@ -23,14 +23,32 @@ headers, error translation and request payloads live in one place.
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterable, Mapping
-from typing import Any, Protocol
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any, Protocol, TypeAlias
 
 from mstr.requests.rest import exceptions
 
 MSTR_AUTH_TOKEN = "X-MSTR-AuthToken"
 MSTR_PROJECT_ID_HEADER = "X-MSTR-ProjectID"
 MSTR_HEADER_PREFIX = "X-MSTR"
+
+Credential: TypeAlias = str | Callable[[], str] | None
+"""A credential value: either a plain string or a zero-argument callable that
+returns a string.  Callables are resolved lazily when the session's context
+manager is entered, making it easy to integrate secrets managers or other
+deferred-lookup strategies."""
+
+
+def resolve_credential(value: Credential) -> str | None:
+    """Resolve a :data:`Credential` to its string value.
+
+    If *value* is callable it is invoked and the result returned; otherwise
+    *value* is returned as-is.
+    """
+    if callable(value):
+        return value()
+    return value
+
 
 _ERROR_CODES: dict[str, type[exceptions.MSTRException]] = {
     "ERR003": exceptions.LoginFailureException,

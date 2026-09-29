@@ -2,14 +2,17 @@
 
 import functools
 import json
+import subprocess
+import sys
 import warnings
 
 import httpx
 import pytest
+import requests
 
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
-from mstr.requests.httpx import (
+from mstr.requests import (
     AuthenticatedMSTRRESTSession as HttpxAuthenticatedMSTRRESTSession,
     MSTRRESTSession as HttpxMSTRRESTSession,
     MSTRSessionProtocol as HttpxMSTRSessionProtocol,
@@ -369,8 +372,8 @@ def test_httpx_and_async_sessions_match_requests_session_api():
         assert expected <= _public_methods(cls), cls
 
 
-def test_requests_session_emits_pending_deprecation_warning():
-    with pytest.warns(PendingDeprecationWarning, match="mstr.requests.httpx"):
+def test_compat_session_emits_deprecation_warning():
+    with pytest.warns(DeprecationWarning, match="mstr.requests.compat"):
         MSTRRESTSession(base_url=BASE_URL)
 
 
@@ -382,12 +385,43 @@ def test_httpx_session_does_not_warn(server):
 
 def test_public_module_exports():
     import mstr.requests
+    import mstr.requests.compat
     import mstr.requests.httpx
+    from mstr.requests.rest.httpx_sync import MSTRRESTSession as Impl
 
+    assert mstr.requests.MSTRRESTSession is Impl
+    assert mstr.requests.httpx.MSTRRESTSession is Impl
+    assert (
+        mstr.requests.httpx.AuthenticatedMSTRRESTSession
+        is mstr.requests.AuthenticatedMSTRRESTSession
+    )
     assert mstr.requests.httpx.Credential is mstr.requests.Credential
-    assert set(mstr.requests.httpx.__all__) == {
-        "AuthenticatedMSTRRESTSession",
-        "Credential",
-        "MSTRRESTSession",
-        "MSTRSessionProtocol",
-    }
+    assert mstr.requests.compat.Credential is mstr.requests.Credential
+    assert issubclass(mstr.requests.compat.MSTRRESTSession, requests.Session)
+
+
+def _run_without_requests(code):
+    """Run *code* in a fresh interpreter where ``import requests`` fails."""
+    script = (
+        "import sys\n"
+        "sys.modules['requests'] = None\n"
+        "sys.modules['requests_toolbelt'] = None\n" + code
+    )
+    return subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True
+    )
+
+
+def test_package_imports_without_requests():
+    result = _run_without_requests(
+        "import mstr.requests, mstr.requests.httpx, mstr.requests.credentials\n"
+        "print(mstr.requests.MSTRRESTSession.__module__)"
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "mstr.requests.rest.httpx_sync.session"
+
+
+def test_compat_without_requests_explains_extra():
+    result = _run_without_requests("import mstr.requests.compat")
+    assert result.returncode != 0
+    assert "pip install mstr-rest-requests[requests]" in result.stderr

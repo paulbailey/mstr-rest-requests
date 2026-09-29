@@ -15,8 +15,7 @@
 
 """Synchronous sessions for the MicroStrategy REST API, built on httpx.
 
-These will replace the requests-based classes as the default in 2.0.  Import
-them from :mod:`mstr.requests.httpx`.
+These are the default classes exported by :mod:`mstr.requests`.
 """
 
 from .api import AuthMixin, ProjectsMixin, SessionsMixin

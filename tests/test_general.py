@@ -1,6 +1,6 @@
 import pytest
 
-from mstr.requests import MSTRRESTSession
+from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest.exceptions import ResourceNotFoundException
 
 
