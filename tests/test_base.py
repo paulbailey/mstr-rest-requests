@@ -72,3 +72,34 @@ def test_request_includes_project_id_header_when_given(session):
         session.request("GET", "path", project_id="proj-123")
     call_kw = mock_request.call_args[1]
     assert call_kw["headers"].get(MSTR_PROJECT_ID_HEADER) == "proj-123"
+
+
+def test_request_error_with_charset_in_content_type_is_translated(session):
+    """A JSON error body with a charset parameter is still translated."""
+    resp = MagicMock()
+    resp.ok = False
+    resp.headers = {"Content-Type": "application/json;charset=UTF-8"}
+    resp.json.return_value = {"code": "ERR004", "message": "missing"}
+
+    with patch.object(BaseUrlSession, "request", return_value=resp):
+        with pytest.raises(exceptions.ResourceNotFoundException):
+            session.request("GET", "test")
+
+
+def test_request_error_without_content_type_returns_response(session):
+    """A failed response with no Content-Type header is returned, not a KeyError."""
+    resp = MagicMock()
+    resp.ok = False
+    resp.headers = {}
+
+    with patch.object(BaseUrlSession, "request", return_value=resp):
+        assert session.request("GET", "test") is resp
+
+
+def test_request_does_not_mutate_caller_headers(session):
+    """Headers passed by the caller are copied, not modified."""
+    session.headers[MSTR_AUTH_TOKEN] = "existing-token"
+    caller_headers = {"Accept": "application/json"}
+    with patch.object(BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})):
+        session.request("GET", "path", headers=caller_headers, project_id="p")
+    assert caller_headers == {"Accept": "application/json"}
