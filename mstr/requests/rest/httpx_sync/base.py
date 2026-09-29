@@ -28,17 +28,16 @@ _B = TypeVar("_B", bound="MSTRBaseSession")
 class MSTRBaseSession(HttpxClientStateMixin):
     """Low-level httpx session that manages auth-token headers and error translation.
 
-    Wraps an :class:`httpx.Client` (available as :attr:`client`) rather
+    Wraps an :class:`httpx.Client` (available as ``client``) rather
     than subclassing it, so that the verb methods can accept the
     MicroStrategy-specific ``include_auth`` and ``project_id`` arguments.
 
     Response headers beginning with ``X-MSTR`` are captured and stored on the
     session, and JSON error payloads are translated into
-    :mod:`~mstr.requests.rest.exceptions` types, exactly as the
-    requests-based :class:`~mstr.requests.rest.base.MSTRBaseSession` does.
+    :mod:`~mstr.requests.rest.exceptions` types.
 
     Unlike httpx's own defaults, requests have no timeout and redirects are
-    followed, matching the behaviour of the requests-based session.
+    followed, matching the 1.x requests-based sessions.
 
     Args:
         base_url: MicroStrategy REST API root URL.  Relative request URLs

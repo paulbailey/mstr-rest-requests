@@ -47,9 +47,8 @@ class AuthMixin:
     ) -> httpx.Response:
         """Create an authenticated session via ``POST /auth/login``.
 
-        See :meth:`AuthMixin.post_login
-        <mstr.requests.rest.api.auth.AuthMixin.post_login>` for how the login
-        mode is chosen.
+        See :func:`~mstr.requests.rest.core.login_payload` for how the login
+        mode is chosen from the arguments.
 
         Raises:
             httpx.HTTPStatusError: If the server returns a non-204 status.
@@ -160,7 +159,7 @@ class ProjectsMixin:
         return cast(list[dict[str, Any]], response.json())
 
     def load_projects(self) -> None:
-        """Fetch projects and populate :attr:`projects_by_name` / :attr:`projects_by_id` look-ups."""
+        """Fetch projects and populate ``projects_by_name`` / ``projects_by_id`` look-ups."""
         self.projects_by_name, self.projects_by_id = core.project_lookups(
             self.get_projects()
         )
@@ -168,10 +167,10 @@ class ProjectsMixin:
     def get_project_id(self, project_name: str) -> str | None:
         """Return the project ID for *project_name*, or ``None`` if not found.
 
-        :meth:`load_projects` must be awaited first.
+        :meth:`load_projects` must be called first.
 
         Raises:
-            SessionException: If :meth:`load_projects` has not been awaited.
+            SessionException: If :meth:`load_projects` has not been called.
         """
         try:
             return self.projects_by_name.get(project_name, None)

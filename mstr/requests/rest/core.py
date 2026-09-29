@@ -40,7 +40,7 @@ deferred-lookup strategies."""
 
 
 def resolve_credential(value: Credential) -> str | None:
-    """Resolve a :data:`Credential` to its string value.
+    """Resolve a :data:`~mstr.requests.Credential` to its string value.
 
     If *value* is callable it is invoked and the result returned; otherwise
     *value* is returned as-is.

@@ -30,13 +30,11 @@ class MSTRRESTSession(
 ):
     """Full-featured httpx-based session for the MicroStrategy REST API.
 
-    The httpx counterpart of the requests-based
-    :class:`~mstr.requests.MSTRRESTSession`: the same methods, returning
-    :class:`httpx.Response` objects.  Exported as
-    :class:`mstr.requests.MSTRRESTSession`.  Use ``with`` (or
-    :meth:`close`) to release the underlying connection pool; login and
-    logout are up to you.  For automatic login/logout use
-    :class:`~mstr.requests.rest.httpx_sync.AuthenticatedMSTRRESTSession`.
+    Combines authentication, session management, project helpers and
+    serialisation.  Request methods return :class:`httpx.Response` objects.
+    Use ``with`` (or :meth:`close`) to release the underlying connection
+    pool; login and logout are up to you.  For automatic login/logout use
+    :class:`~mstr.requests.AuthenticatedMSTRRESTSession`.
 
     Example::
 

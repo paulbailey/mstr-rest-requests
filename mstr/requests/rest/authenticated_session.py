@@ -29,7 +29,7 @@ __all__ = ["AuthenticatedMSTRRESTSession", "Credential"]
 class AuthenticatedMSTRRESTSession(MSTRRESTSession):
     """Context-managed session that logs in on entry and out on exit.
 
-    All credential parameters accept a :data:`Credential` -- either a plain
+    All credential parameters accept a :data:`~mstr.requests.Credential` -- either a plain
     string **or** a zero-argument callable returning a string.  Callables are
     resolved when the context manager is entered, not at construction time.
     This enables integration with secrets managers and other deferred-lookup

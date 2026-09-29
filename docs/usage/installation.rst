@@ -46,3 +46,9 @@ Run the test suite:
 .. code-block:: bash
 
    uv run pytest
+
+Build the documentation:
+
+.. code-block:: bash
+
+   uv run sphinx-build -b html docs docs/_build/html

@@ -4,6 +4,8 @@ A straightforward sync and async client for the [MicroStrategy REST API](https:/
 
 ![Python package](https://github.com/paulbailey/mstr-rest-requests/workflows/Python%20package/badge.svg)
 
+Full documentation: <https://mstr-rest-requests.readthedocs.io/>
+
 ## Installation
 
 Requires Python 3.10 or later.
@@ -110,7 +112,7 @@ session.login()
 
 Every credential parameter on `AuthenticatedMSTRRESTSession` -- including
 `base_url` -- accepts either a plain string **or** a zero-argument callable
-that returns a string (the :data:`Credential` type).  Callables are resolved
+that returns a string (the `Credential` type).  Callables are resolved
 lazily when the context manager is entered, not when the session is constructed.
 You can import the type alias from `mstr.requests` for type hints.
 
@@ -406,13 +408,17 @@ All API error responses are translated into typed exceptions:
 | `SessionException`                 | ERR009                 | Session invalid or timed out         |
 | `InsufficientPrivilegesException`  | ERR0014, ERR0017       | Insufficient privileges / permission |
 | `ObjectAlreadyExistsException`     | ERR0015                | Object already exists                |
-| `ExecutionCancelledException`      | --                     | Report or cube execution cancelled   |
+| `ExecutionCancelledException`      | --                     | Not raised by the library; for your own code |
 | `MSTRUnknownException`             | --                     | Response missing error code          |
 | `MSTRException`                    | Everything else        | Base class / catch-all               |
 
 ```python
 from mstr.requests.rest.exceptions import LoginFailureException
 ```
+
+Error responses without a JSON body (for example a proxy's HTML error page)
+are returned as normal, so check `response.is_success` or call
+`response.raise_for_status()` if you need to catch those too.
 
 ## License
 

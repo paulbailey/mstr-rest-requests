@@ -40,7 +40,7 @@ class ProjectsMixin:
         return cast(list[dict[str, Any]], response)
 
     def load_projects(self) -> None:
-        """Fetch projects and populate :attr:`projects_by_name` / :attr:`projects_by_id` look-ups.
+        """Fetch projects and populate ``projects_by_name`` / ``projects_by_id`` look-ups.
 
         After calling this method you can resolve project names to IDs
         with :meth:`get_project_id`.

@@ -28,7 +28,7 @@ _B = TypeVar("_B", bound="AsyncMSTRBaseSession")
 class AsyncMSTRBaseSession(HttpxClientStateMixin):
     """Low-level async session that manages auth-token headers and error translation.
 
-    Wraps an :class:`httpx.AsyncClient` (available as :attr:`client`) rather
+    Wraps an :class:`httpx.AsyncClient` (available as ``client``) rather
     than subclassing it, so that the verb methods can accept the
     MicroStrategy-specific ``include_auth`` and ``project_id`` arguments.
 
