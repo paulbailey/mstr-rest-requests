@@ -65,6 +65,8 @@ class FakeServer:
             failure = self.failures.pop(0)
             if isinstance(failure, Exception):
                 raise failure
+            if callable(failure):
+                return failure(request)
             return failure
         if request.headers.get(MSTR_AUTH_TOKEN) not in self.valid_tokens:
             return httpx.Response(401, json=ERR009)
@@ -171,6 +173,19 @@ def test_relogin_from_many_threads_logs_in_once(server):
     assert server.logins == 2
 
 
+def test_relogin_skipped_when_token_already_replaced(server):
+    with sync_session(server, relogin=True) as session:
+        server.valid_tokens.add("token-from-other-thread")
+
+        def other_thread_logged_in(request):
+            session.headers[MSTR_AUTH_TOKEN] = "token-from-other-thread"
+            return httpx.Response(401, json=ERR009)
+
+        server.failures = [other_thread_logged_in]
+        assert session.get("sessions").json() == {"ok": True}
+    assert server.logins == 1
+
+
 def test_keepalive_extends_session_until_exit(server):
     with sync_session(server, keepalive_interval=0.01) as session:
         deadline = time.monotonic() + 2
@@ -236,6 +251,16 @@ async def test_async_keepalive_extends_session_until_exit(server):
 
 
 @pytest.mark.anyio
+async def test_async_keepalive_logs_failures_and_keeps_going(server, caplog):
+    async with async_session(server, keepalive_interval=0.01):
+        server.failures = [httpx.Response(400, json={"code": "ERR005"})]
+        with anyio.fail_after(2):
+            while server.paths().count("sessions") < 2:
+                await anyio.sleep(0.01)
+    assert "Keep-alive request failed" in caplog.text
+
+
+@pytest.mark.anyio
 async def test_async_keepalive_stops_when_block_raises(server):
     with pytest.raises(ValueError):
         async with async_session(server, keepalive_interval=0.01):
@@ -298,6 +323,13 @@ def test_retries_read_timeouts_only_for_idempotent_methods(server):
         plain_session(server, retries=1).post("thing")
 
 
+def test_gives_up_after_retries_on_errors(server):
+    server.failures = [httpx.ConnectError("refused")] * 2
+    with pytest.raises(httpx.ConnectError):
+        plain_session(server, retries=1).get("thing")
+    assert len(server.requests) == 2
+
+
 def test_retry_waits_with_backoff(server, monkeypatch):
     waits = []
     monkeypatch.setattr(time, "sleep", waits.append)
@@ -345,6 +377,16 @@ async def test_async_retries(server, monkeypatch):
     assert len(server.requests) == 3
 
 
+@pytest.mark.anyio
+async def test_async_gives_up_after_retries_on_errors(server):
+    server.failures = [httpx.ConnectError("refused")] * 2
+    session = AsyncMSTRRESTSession(
+        BASE_URL, transport=httpx.MockTransport(server), retries=1, backoff_factor=0
+    )
+    with pytest.raises(httpx.ConnectError):
+        await session.get("thing")
+
+
 # Projects by name
 
 
@@ -378,6 +420,15 @@ def test_project_name_needs_project_helpers(server):
     session = MSTRBaseSession(BASE_URL, transport=httpx.MockTransport(server))
     with pytest.raises(TypeError, match="project helpers"):
         session.get("reports", project="Sales")
+
+
+@pytest.mark.anyio
+async def test_async_project_name_needs_project_helpers(server):
+    from mstr.requests.rest.aio.base import AsyncMSTRBaseSession
+
+    session = AsyncMSTRBaseSession(BASE_URL, transport=httpx.MockTransport(server))
+    with pytest.raises(TypeError, match="project helpers"):
+        await session.get("reports", project="Sales")
 
 
 @pytest.mark.anyio
@@ -418,6 +469,15 @@ async def test_async_create_identity_token(server):
     async with async_session(server) as session:
         assert await session.create_identity_token() == "identity-1"
         assert "X-MSTR-IdentityToken" not in session.headers
+
+
+@pytest.mark.anyio
+async def test_async_create_identity_token_without_header_raises(server):
+    async with async_session(server) as session:
+        server.failures = [httpx.Response(201)]
+        with pytest.raises(exceptions.MSTRException, match="identity token") as info:
+            await session.create_identity_token()
+    assert info.value.status_code == 201
 
 
 # Logging
