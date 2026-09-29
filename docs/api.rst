@@ -15,6 +15,25 @@ Session classes
 
 .. autodata:: mstr.requests.Credential
 
+httpx session classes
+---------------------
+
+.. autoclass:: mstr.requests.httpx.MSTRRESTSession
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: mstr.requests.httpx.AuthenticatedMSTRRESTSession
+   :members:
+   :show-inheritance:
+
+.. autoclass:: mstr.requests.rest.httpx_sync.base.MSTRBaseSession
+   :members:
+   :show-inheritance:
+
+.. autoclass:: mstr.requests.httpx.MSTRSessionProtocol
+   :members:
+
 Async session classes
 ---------------------
 

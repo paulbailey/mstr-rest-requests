@@ -22,33 +22,33 @@ import httpx
 
 from mstr.requests.rest.httpx_common import HttpxClientStateMixin
 
-_B = TypeVar("_B", bound="AsyncMSTRBaseSession")
+_B = TypeVar("_B", bound="MSTRBaseSession")
 
 
-class AsyncMSTRBaseSession(HttpxClientStateMixin):
-    """Low-level async session that manages auth-token headers and error translation.
+class MSTRBaseSession(HttpxClientStateMixin):
+    """Low-level httpx session that manages auth-token headers and error translation.
 
-    Wraps an :class:`httpx.AsyncClient` (available as :attr:`client`) rather
+    Wraps an :class:`httpx.Client` (available as :attr:`client`) rather
     than subclassing it, so that the verb methods can accept the
     MicroStrategy-specific ``include_auth`` and ``project_id`` arguments.
 
     Response headers beginning with ``X-MSTR`` are captured and stored on the
     session, and JSON error payloads are translated into
-    :mod:`~mstr.requests.rest.exceptions` types, exactly as the synchronous
-    :class:`~mstr.requests.rest.base.MSTRBaseSession` does.
+    :mod:`~mstr.requests.rest.exceptions` types, exactly as the
+    requests-based :class:`~mstr.requests.rest.base.MSTRBaseSession` does.
 
     Unlike httpx's own defaults, requests have no timeout and redirects are
-    followed, matching the behaviour of the synchronous session.
+    followed, matching the behaviour of the requests-based session.
 
     Args:
         base_url: MicroStrategy REST API root URL.  Relative request URLs
             are appended to it.
-        timeout: Passed to :class:`httpx.AsyncClient`.  Defaults to no
+        timeout: Passed to :class:`httpx.Client`.  Defaults to no
             timeout.
-        follow_redirects: Passed to :class:`httpx.AsyncClient`.
-        client: An existing :class:`httpx.AsyncClient` to use instead of
+        follow_redirects: Passed to :class:`httpx.Client`.
+        client: An existing :class:`httpx.Client` to use instead of
             creating one.  The session does not close a client it was given.
-        **client_kwargs: Any other :class:`httpx.AsyncClient` arguments,
+        **client_kwargs: Any other :class:`httpx.Client` arguments,
             such as ``verify``, ``limits``, ``http2`` or ``transport``.
     """
 
@@ -58,18 +58,18 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
         *,
         timeout: Any = None,
         follow_redirects: bool = True,
-        client: httpx.AsyncClient | None = None,
+        client: httpx.Client | None = None,
         **client_kwargs: Any,
     ) -> None:
         self._owns_client = client is None
         if client is None:
-            client = httpx.AsyncClient(
+            client = httpx.Client(
                 timeout=timeout, follow_redirects=follow_redirects, **client_kwargs
             )
-        self.client: httpx.AsyncClient = client
+        self.client: httpx.Client = client
         self.base_url = base_url
 
-    async def request(
+    def request(
         self,
         method: str,
         url: str,
@@ -88,7 +88,7 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
                 ``True`` (the default).
             project_id: If given, sent as the ``X-MSTR-ProjectID`` header.
             headers: Extra headers for this request.
-            **kwargs: Passed through to :meth:`httpx.AsyncClient.request`.
+            **kwargs: Passed through to :meth:`httpx.Client.request`.
 
         Returns:
             An :class:`httpx.Response`.
@@ -100,51 +100,49 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
                 full mapping.
         """
         request_headers = self._request_headers(url, headers, include_auth, project_id)
-        response = await self.client.request(
-            method, url, headers=request_headers, **kwargs
-        )
+        response = self.client.request(method, url, headers=request_headers, **kwargs)
         return self._handle_response(response)
 
-    async def get(self, url: str, **kwargs: Any) -> httpx.Response:
+    def get(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``GET`` request.  See :meth:`request`."""
-        return await self.request("GET", url, **kwargs)
+        return self.request("GET", url, **kwargs)
 
-    async def options(self, url: str, **kwargs: Any) -> httpx.Response:
+    def options(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send an ``OPTIONS`` request.  See :meth:`request`."""
-        return await self.request("OPTIONS", url, **kwargs)
+        return self.request("OPTIONS", url, **kwargs)
 
-    async def head(self, url: str, **kwargs: Any) -> httpx.Response:
+    def head(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``HEAD`` request.  See :meth:`request`."""
-        return await self.request("HEAD", url, **kwargs)
+        return self.request("HEAD", url, **kwargs)
 
-    async def post(self, url: str, **kwargs: Any) -> httpx.Response:
+    def post(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``POST`` request.  See :meth:`request`."""
-        return await self.request("POST", url, **kwargs)
+        return self.request("POST", url, **kwargs)
 
-    async def put(self, url: str, **kwargs: Any) -> httpx.Response:
+    def put(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``PUT`` request.  See :meth:`request`."""
-        return await self.request("PUT", url, **kwargs)
+        return self.request("PUT", url, **kwargs)
 
-    async def patch(self, url: str, **kwargs: Any) -> httpx.Response:
+    def patch(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``PATCH`` request.  See :meth:`request`."""
-        return await self.request("PATCH", url, **kwargs)
+        return self.request("PATCH", url, **kwargs)
 
-    async def delete(self, url: str, **kwargs: Any) -> httpx.Response:
+    def delete(self, url: str, **kwargs: Any) -> httpx.Response:
         """Send a ``DELETE`` request.  See :meth:`request`."""
-        return await self.request("DELETE", url, **kwargs)
+        return self.request("DELETE", url, **kwargs)
 
-    async def aclose(self) -> None:
+    def close(self) -> None:
         """Close the underlying client, unless it was supplied by the caller."""
         if self._owns_client:
-            await self.client.aclose()
+            self.client.close()
 
-    async def __aenter__(self: _B) -> _B:
+    def __enter__(self: _B) -> _B:
         return self
 
-    async def __aexit__(
+    def __exit__(
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
-        await self.aclose()
+        self.close()

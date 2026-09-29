@@ -21,6 +21,7 @@ pip install mstr-rest-requests[aws]    # AWS Secrets Manager & SSM Parameter Sto
 pip install mstr-rest-requests[azure]  # Azure Key Vault
 pip install mstr-rest-requests[gcp]    # Google Cloud Secret Manager
 pip install mstr-rest-requests[async]  # Async sessions (httpx)
+pip install mstr-rest-requests[httpx]  # httpx-based sync sessions (the 2.0 default)
 ```
 
 ## Quick start
@@ -359,6 +360,43 @@ Differences from the synchronous classes:
 - Use `async with` (or `await session.aclose()`) to release connections.
 - `to_dict()` / `from_dict()` use the same format as the synchronous session,
   so a session can be handed between the two.
+
+## httpx-based sync sessions
+
+In 2.0 the synchronous classes will be built on httpx instead of requests,
+so that the sync and async paths share one HTTP library. You can try them
+now: install the `httpx` extra and change the import. The class names and
+arguments are the same.
+
+```python
+from mstr.requests.httpx import AuthenticatedMSTRRESTSession
+
+with AuthenticatedMSTRRESTSession(
+    base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/",
+    username="dave",
+    password="hellodave",
+) as session:
+    projects = session.get_projects()
+```
+
+Creating a requests-based session now emits a `PendingDeprecationWarning`
+(hidden by default outside tests). Things to check when switching:
+
+- Methods return `httpx.Response`. Use `response.is_success` instead of
+  `response.ok`. `raise_for_status()` raises `httpx.HTTPStatusError`, and
+  also raises for 3xx responses.
+- Request arguments follow httpx: `follow_redirects` instead of
+  `allow_redirects`, and `content=` for raw bodies.
+- The session wraps an `httpx.Client` (`session.client`) rather than being a
+  `requests.Session`. Configure TLS, proxies, retries and connection limits
+  with constructor arguments (`verify`, `proxy`, `transport`, `limits`)
+  instead of `session.mount()` and adapters.
+- No timeout by default and redirects are followed, as with requests.
+- Relative URLs are always appended to `base_url`, so a leading `/` or a
+  missing trailing slash no longer drops the `/api` segment.
+- Use `with` or `session.close()` to release connections.
+- `to_dict()` / `from_dict()` use the same format, so sessions can be handed
+  between the requests, httpx and async classes.
 
 ## Exceptions
 

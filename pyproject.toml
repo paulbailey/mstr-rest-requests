@@ -1,6 +1,6 @@
 [project]
 name = "mstr-rest-requests"
-version = "1.2.0"
+version = "1.3.0"
 description = "Easily make requests of the MicroStrategy REST API"
 authors = [{ name = "Paul Bailey", email = "bailey@dreamshake.net" }]
 requires-python = ">=3.10, <4"
@@ -17,6 +17,7 @@ azure = ["azure-identity", "azure-keyvault-secrets"]
 gcp = ["google-cloud-secret-manager"]
 docs = ["sphinx>=7,<9", "sphinx-rtd-theme"]
 async = ["httpx>=0.28.1", "anyio>=4"]
+httpx = ["httpx>=0.28.1"]
 
 [project.urls]
 Documentation = "https://mstr-rest-requests.readthedocs.io/"
@@ -40,6 +41,11 @@ include = ["mstr"]
 
 [tool.hatch.build.targets.wheel]
 include = ["mstr"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:The requests-based MSTRRESTSession:PendingDeprecationWarning",
+]
 
 [tool.mypy]
 python_version = "3.10"
