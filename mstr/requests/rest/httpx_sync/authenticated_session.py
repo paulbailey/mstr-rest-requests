@@ -18,7 +18,11 @@ from __future__ import annotations
 from types import TracebackType
 from typing import Any
 
-from mstr.requests.rest.core import Credential, resolve_credential as _resolve
+from mstr.requests.rest.core import (
+    Credential,
+    raise_for_unresolved_credentials,
+    resolve_credential as _resolve,
+)
 
 from .session import MSTRRESTSession
 
@@ -85,6 +89,13 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             api_key = _resolve(self._api_key)
             username = _resolve(self._username)
             password = _resolve(self._password)
+
+            raise_for_unresolved_credentials(
+                identity_token=(self._identity_token, identity_token),
+                api_key=(self._api_key, api_key),
+                username=(self._username, username),
+                password=(self._password, password),
+            )
 
             if identity_token is not None:
                 self.delegate(identity_token)

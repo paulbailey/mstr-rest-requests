@@ -14,6 +14,10 @@ MicroStrategy error code in the body:
    * - :class:`~mstr.requests.rest.exceptions.LoginFailureException`
      - ERR003
      - Authentication failed
+   * - :class:`~mstr.requests.rest.exceptions.MissingCredentialException`
+     - none
+     - A credential you passed resolved to ``None``; raised before logging
+       in. A subclass of ``LoginFailureException``.
    * - :class:`~mstr.requests.rest.exceptions.IServerException`
      - ERR002, ERR0013
      - Intelligence Server error, or server unreachable

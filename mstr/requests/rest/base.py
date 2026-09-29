@@ -15,9 +15,9 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
-from requests import Response
+from requests import PreparedRequest, Response
 from requests_toolbelt.sessions import BaseUrlSession
 
 from mstr.requests.rest import core
@@ -36,6 +36,10 @@ class MSTRBaseSession(BaseUrlSession):
     Response headers beginning with ``X-MSTR`` are captured and stored on the
     session, and JSON error payloads are translated into
     :mod:`~mstr.requests.rest.exceptions` types.
+
+    The auth token (and the other ``X-MSTR`` headers) are only sent to the
+    origin of *base_url*: absolute URLs and redirects to another scheme,
+    host or port go without them.
     """
 
     def has_session(self) -> bool:
@@ -85,9 +89,19 @@ class MSTRBaseSession(BaseUrlSession):
 
         core.warn_on_double_slash(url)
 
-        kwargs["headers"] = core.build_request_headers(
+        headers: dict[str, Any] = core.build_request_headers(
             kwargs.get("headers"), self.headers, include_auth, project_id
         )
+        # requests drops session headers whose per-request value is None.
+        if not include_auth:
+            headers[MSTR_AUTH_TOKEN] = None
+        full_url = self.create_url(url)
+        if core.url_origin(full_url) != core.auth_scope_origin(
+            self.base_url or "", full_url
+        ):
+            for name in core.mstr_header_names([*self.headers, *headers]):
+                headers[name] = None
+        kwargs["headers"] = headers
 
         response = super(MSTRBaseSession, self).request(method, url, *args, **kwargs)
 
@@ -96,3 +110,14 @@ class MSTRBaseSession(BaseUrlSession):
         else:
             self.headers.update(core.mstr_response_headers(response.headers.items()))
         return cast(Response, response)
+
+    def rebuild_auth(
+        self, prepared_request: PreparedRequest, response: Response
+    ) -> None:
+        """Also remove ``X-MSTR`` headers on a redirect to another origin."""
+        super().rebuild_auth(prepared_request, response)
+        url = prepared_request.url or ""
+        scope = core.auth_scope_origin(self.base_url or "", response.request.url or "")
+        if core.url_origin(url) != scope:
+            for name in core.mstr_header_names(list(prepared_request.headers)):
+                del prepared_request.headers[name]

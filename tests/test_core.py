@@ -198,3 +198,57 @@ def test_project_lookups():
     )
     assert by_name == {"A": "1", "B": "2"}
     assert by_id == {"1": "A", "2": "B"}
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("https://Host.Example.com/api/", ("https", "host.example.com", None)),
+        ("https://host.example.com:443/api/", ("https", "host.example.com", None)),
+        ("http://host.example.com:80/", ("http", "host.example.com", None)),
+        ("https://host.example.com:8443/", ("https", "host.example.com", 8443)),
+        ("projects", None),
+        ("", None),
+    ],
+)
+def test_url_origin(url, expected):
+    assert core.url_origin(url) == expected
+
+
+def test_auth_scope_origin_prefers_base_url():
+    assert core.auth_scope_origin("https://a.example/api/", "https://b.example/x") == (
+        "https",
+        "a.example",
+        None,
+    )
+    assert core.auth_scope_origin("", "https://b.example/x") == (
+        "https",
+        "b.example",
+        None,
+    )
+
+
+def test_mstr_header_names_is_case_insensitive():
+    assert core.mstr_header_names(["x-mstr-authtoken", "X-MSTR-ProjectID", "Accept"]) == [
+        "x-mstr-authtoken",
+        "X-MSTR-ProjectID",
+    ]
+
+
+@pytest.mark.parametrize(
+    "base_url,expected",
+    [
+        ("https://env.example.com/api/", "env.example.com"),
+        ("http://localhost:8080/api/", "localhost.local"),
+        ("http://127.0.0.1/api/", "127.0.0.1"),
+        ("", ""),
+    ],
+)
+def test_cookie_domain(base_url, expected):
+    assert core.cookie_domain(base_url) == expected
+
+
+def test_raise_for_unresolved_credentials():
+    core.raise_for_unresolved_credentials(password=(None, None), username=("u", "u"))
+    with pytest.raises(exceptions.MissingCredentialException, match="password"):
+        core.raise_for_unresolved_credentials(password=(lambda: None, None))

@@ -68,6 +68,7 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
             )
         self.client: httpx.AsyncClient = client
         self.base_url = base_url
+        self._install_auth_scope_hook()
 
     async def request(
         self,
@@ -84,8 +85,10 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
         Args:
             method: HTTP method (``GET``, ``POST``, etc.).
             url: URL path relative to the session's *base_url*.
-            include_auth: Attach the ``X-MSTR-AuthToken`` header when
-                ``True`` (the default).
+            include_auth: Send the ``X-MSTR-AuthToken`` header when
+                ``True`` (the default).  The token is only ever sent to the
+                origin of *base_url*: absolute URLs and redirects to another
+                scheme, host or port go without it.
             project_id: If given, sent as the ``X-MSTR-ProjectID`` header.
             headers: Extra headers for this request.
             **kwargs: Passed through to :meth:`httpx.AsyncClient.request`.
@@ -100,6 +103,9 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
                 full mapping.
         """
         request_headers = self._request_headers(url, headers, include_auth, project_id)
+        kwargs["extensions"] = self._auth_scope_extensions(
+            url, include_auth, kwargs.get("extensions")
+        )
         response = await self.client.request(
             method, url, headers=request_headers, **kwargs
         )

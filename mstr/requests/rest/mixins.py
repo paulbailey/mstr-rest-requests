@@ -18,8 +18,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any, Dict as DictType, TypeVar
 
-from requests.utils import dict_from_cookiejar, cookiejar_from_dict
+from requests.cookies import RequestsCookieJar, create_cookie
+from requests.utils import dict_from_cookiejar
 
+from . import core
 from .exceptions import SessionException
 
 if TYPE_CHECKING:
@@ -41,6 +43,11 @@ class SessionPersistenceMixin:
         """Return a dict snapshot of the session state.
 
         The dict contains ``base_url``, ``cookies``, and ``headers``.
+
+        .. warning::
+           The snapshot includes the live auth token and session cookies.
+           Anyone holding it can act as the logged-in user until the
+           session expires, so store and pass it as a secret.
         """
         return {
             "base_url": self.base_url,
@@ -59,6 +66,9 @@ class SessionPersistenceMixin:
     def update_from_json(self: _S, data: DictType[str, Any] | str) -> None:
         """Restore session state from a dict or JSON string.
 
+        Cookies are restored for the host of the restored ``base_url``
+        only.
+
         Args:
             data: A dict (or JSON string) previously produced by
                 :meth:`to_dict` or :meth:`json`.
@@ -75,7 +85,11 @@ class SessionPersistenceMixin:
 
         try:
             self.base_url = input_data["base_url"]
-            self.cookies = cookiejar_from_dict(input_data["cookies"])
+            cookies = RequestsCookieJar()
+            domain = core.cookie_domain(self.base_url or "")
+            for name, value in input_data["cookies"].items():
+                cookies.set_cookie(create_cookie(name, value, domain=domain))
+            self.cookies = cookies
             self.headers.update(input_data["headers"])
         except KeyError as e:
             raise SessionException(str(e))
