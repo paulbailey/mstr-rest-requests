@@ -297,6 +297,9 @@ data = session.json()
 restored = MSTRRESTSession.from_dict(json.loads(data))
 ```
 
+The saved data holds the live auth token and session cookies, so treat it as
+a secret. Restored cookies are sent only to the `base_url` host.
+
 ### Projects
 
 ```python
@@ -312,6 +315,8 @@ Its request methods take the usual httpx arguments (`params`, `json`,
 `headers`, `timeout`, ...) plus two extra keyword arguments:
 
 - `include_auth` (default `True`) -- attach the `X-MSTR-AuthToken` header.
+  The token is only sent to the scheme, host and port of `base_url`; absolute
+  URLs on other hosts, and redirects to them, go without it.
 - `project_id` -- attach the `X-MSTR-ProjectID` header for project-scoped
   endpoints.
 

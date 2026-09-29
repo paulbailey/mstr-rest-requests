@@ -22,6 +22,8 @@ from typing import Any, TypeAlias, cast
 
 import anyio.to_thread
 
+from mstr.requests.rest.core import raise_for_unresolved_credentials
+
 from .session import AsyncMSTRRESTSession
 
 AsyncCredential: TypeAlias = (
@@ -113,6 +115,13 @@ class AsyncAuthenticatedMSTRRESTSession(AsyncMSTRRESTSession):
             api_key = await _aresolve(self._api_key)
             username = await _aresolve(self._username)
             password = await _aresolve(self._password)
+
+            raise_for_unresolved_credentials(
+                identity_token=(self._identity_token, identity_token),
+                api_key=(self._api_key, api_key),
+                username=(self._username, username),
+                password=(self._password, password),
+            )
 
             if identity_token is not None:
                 await self.delegate(identity_token)

@@ -48,6 +48,14 @@ class LoginFailureException(MSTRException):
     """Raised when authentication fails (``ERR003``)."""
 
 
+class MissingCredentialException(LoginFailureException):
+    """Raised before logging in when a supplied credential resolves to ``None``.
+
+    For example, a ``password`` callable that returns ``None`` because an
+    environment variable is unset.
+    """
+
+
 class IServerException(MSTRException):
     """Raised on Intelligence Server errors (``ERR002``, ``ERR0013``)."""
 

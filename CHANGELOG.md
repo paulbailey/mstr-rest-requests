@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0]
+### Security
+- The auth token (and the other `X-MSTR` headers) is now only sent to the scheme, host and port of `base_url`. Previously it was sent to any absolute URL requested through the session, and it was forwarded when the server redirected to another host, because httpx and requests only strip `Authorization` on redirects. Sessions without a `base_url` send the token to the URL requested but still drop it on a redirect to another origin. Applies to the httpx, async and deprecated requests-based sessions.
+- Cookies restored with `update_from_json()` / `from_dict()` are now set for the `base_url` host. They were previously restored without a domain and sent to every host.
+- `AuthenticatedMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession` raise the new `MissingCredentialException` (a `LoginFailureException`) when a credential you passed resolves to `None`, for example a password function reading an unset environment variable. Previously a missing password silently became a trusted login as that user, and a missing API key or identity token fell back to another login mode. Leaving `password` out altogether still logs in with trusted authentication.
+
+### Fixed
+- `include_auth=False` now sends the request without the auth token. It previously had no effect, because the token is also a session-wide header.
+
+### Changed
+- Documented that `to_dict()` / `json()` contain the live auth token and should be treated as secrets.
+
 ## [2.0.1]
 ### Changed
 - Updated locked development dependencies (cryptography 50.0.0, pyasn1 0.6.4). No changes to the package itself.
@@ -55,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session persistence: serialise/restore sessions via `json()` and `from_dict()`.
 - Typed exceptions for MicroStrategy API errors (see `mstr.requests.rest.exceptions`).
 
+[2.1.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.1.0
+[2.0.1]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.0.1
 [2.0.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.0.0
 [1.3.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v1.3.0
 [1.2.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v1.2.0

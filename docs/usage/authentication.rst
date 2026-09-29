@@ -93,6 +93,11 @@ only when they are needed:
    ) as session:
        ...
 
+If a credential you passed resolves to ``None``, for example because a
+function reads an unset environment variable, the session raises
+:class:`~mstr.requests.rest.exceptions.MissingCredentialException` before it
+contacts the server, rather than falling back to another login mode.
+
 The async sessions also accept ``async def`` functions; see :doc:`async`.
 
 Credential providers

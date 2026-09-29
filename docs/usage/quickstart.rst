@@ -55,6 +55,7 @@ The session has the usual ``get``, ``post``, ``put``, ``patch``, ``delete``,
 Two extra keyword arguments cover the MicroStrategy headers:
 
 * ``include_auth`` (default ``True``) sends the ``X-MSTR-AuthToken`` header.
+  Pass ``False`` to send a request without it.
 * ``project_id`` sends the ``X-MSTR-ProjectID`` header that project-scoped
   endpoints need.
 
@@ -65,6 +66,10 @@ Two extra keyword arguments cover the MicroStrategy headers:
    response = session.get("reports/abc123", project_id=project_id)
 
 Error responses from the API raise typed exceptions; see :doc:`errors`.
+
+The auth token and the other ``X-MSTR`` headers are only sent to the scheme,
+host and port of ``base_url``. An absolute URL on another host, or a
+redirect to one, is sent without them.
 
 Client options
 --------------
@@ -110,3 +115,9 @@ hand it to another process:
 ``to_dict()`` returns the same data as a dictionary. The sync and async
 sessions share the format, so a session saved by one can be restored by the
 other.
+
+.. warning::
+
+   The saved data holds the live auth token and session cookies. Anyone who
+   has it can act as the logged-in user until the session expires, so treat
+   it as a secret. Restored cookies are sent only to the ``base_url`` host.

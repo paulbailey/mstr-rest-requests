@@ -22,9 +22,11 @@ headers, error translation and request payloads live in one place.
 
 from __future__ import annotations
 
+import ipaddress
 import warnings
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, Protocol, TypeAlias
+from urllib.parse import urlsplit
 
 from mstr.requests.rest import exceptions
 
@@ -75,6 +77,82 @@ class ErrorResponse(Protocol):
     def text(self) -> str: ...
 
     def json(self) -> Any: ...
+
+
+Origin: TypeAlias = tuple[str, str, int | None]
+"""A URL's ``(scheme, host, port)``, with the default port given as ``None``."""
+
+_DEFAULT_PORTS = {"http": 80, "https": 443}
+
+
+def url_origin(url: str) -> Origin | None:
+    """Return the origin of *url*, or ``None`` if *url* has no host.
+
+    Scheme and host are lower-cased, and the scheme's default port is
+    returned as ``None`` so that ``https://h/`` and ``https://h:443/`` match.
+    """
+    parts = urlsplit(url)
+    if not parts.hostname:
+        return None
+    scheme = parts.scheme.lower()
+    port = parts.port
+    if port == _DEFAULT_PORTS.get(scheme):
+        port = None
+    return (scheme, parts.hostname.lower(), port)
+
+
+def auth_scope_origin(base_url: str, url: str) -> Origin | None:
+    """Return the origin that the auth token may be sent to.
+
+    This is the origin of *base_url*.  A session without a base URL has no
+    fixed scope, so the origin of the request *url* itself is used.
+    """
+    return url_origin(base_url) or url_origin(url)
+
+
+def mstr_header_names(headers: Iterable[str]) -> list[str]:
+    """Return the names in *headers* that start with ``X-MSTR`` (any case)."""
+    prefix = MSTR_HEADER_PREFIX.lower()
+    return [name for name in headers if name.lower().startswith(prefix)]
+
+
+def cookie_domain(base_url: str) -> str:
+    """Return the cookie domain to use for cookies restored for *base_url*.
+
+    Restored cookies carry no domain of their own, so without one they would
+    be sent to every host.  :mod:`http.cookiejar` treats a dotless host such
+    as ``localhost`` as ``localhost.local``, so that suffix is added.
+    Returns ``""`` when *base_url* has no host.
+    """
+    host = urlsplit(base_url).hostname or ""
+    if host and "." not in host:
+        try:
+            ipaddress.ip_address(host)
+        except ValueError:
+            return host + ".local"
+    return host
+
+
+def raise_for_unresolved_credentials(**credentials: tuple[Any, Any]) -> None:
+    """Raise if a credential was supplied but resolved to ``None``.
+
+    Each keyword maps a credential name to ``(supplied, resolved)``.  A
+    callable that returns ``None`` (an unset environment variable, a missing
+    secret) would otherwise silently change the login mode, for example
+    turning a username and password into a trusted login.
+
+    Raises:
+        MissingCredentialException: Naming the unresolved credentials.
+    """
+    missing = [
+        name
+        for name, (supplied, resolved) in credentials.items()
+        if supplied is not None and resolved is None
+    ]
+    if missing:
+        raise exceptions.MissingCredentialException(
+            "{} resolved to None".format(", ".join(missing))
+        )
 
 
 def warn_on_double_slash(url: str) -> None:
