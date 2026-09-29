@@ -27,6 +27,13 @@ To use the async sessions, install the ``async`` extra, which adds
 
    pip install mstr-rest-requests[async]
 
+To try the httpx-based synchronous sessions that become the default in 2.0,
+install the ``httpx`` extra:
+
+.. code-block:: bash
+
+   pip install mstr-rest-requests[httpx]
+
 Development
 -----------
 

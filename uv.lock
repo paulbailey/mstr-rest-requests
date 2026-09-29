@@ -1051,7 +1051,7 @@ wheels = [
 
 [[package]]
 name = "mstr-rest-requests"
-version = "1.2.0"
+version = "1.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
@@ -1078,6 +1078,9 @@ docs = [
 gcp = [
     { name = "google-cloud-secret-manager" },
 ]
+httpx = [
+    { name = "httpx" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -1101,12 +1104,13 @@ requires-dist = [
     { name = "boto3", marker = "extra == 'aws'" },
     { name = "google-cloud-secret-manager", marker = "extra == 'gcp'" },
     { name = "httpx", marker = "extra == 'async'", specifier = ">=0.28.1" },
+    { name = "httpx", marker = "extra == 'httpx'", specifier = ">=0.28.1" },
     { name = "requests" },
     { name = "requests-toolbelt" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7,<9" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'" },
 ]
-provides-extras = ["aws", "azure", "gcp", "docs", "async"]
+provides-extras = ["aws", "azure", "gcp", "docs", "async", "httpx"]
 
 [package.metadata.requires-dev]
 dev = [

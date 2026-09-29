@@ -13,6 +13,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import warnings
+from typing import Any
+
 from .base import MSTRBaseSession
 from .mixins import SessionPersistenceMixin
 from mstr.requests.rest.api import (
@@ -36,4 +39,20 @@ class MSTRRESTSession(
     this class directly when you need manual control over the session
     lifecycle, or prefer :class:`~mstr.requests.rest.authenticated_session.AuthenticatedMSTRRESTSession`
     for automatic login/logout via a context manager.
+
+    .. note::
+       In 2.0 this class will be replaced by the httpx-based
+       :class:`mstr.requests.httpx.MSTRRESTSession`, which has the same
+       methods but returns :class:`httpx.Response` objects.  Creating an
+       instance emits a :class:`PendingDeprecationWarning`.
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn(
+            "The requests-based MSTRRESTSession will be replaced by an httpx-based "
+            "implementation in mstr-rest-requests 2.0. To try it now, install the "
+            "'httpx' extra and import from mstr.requests.httpx.",
+            PendingDeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
