@@ -67,11 +67,18 @@ class AuthMixin:
     def post_logout(self: _T) -> None:
         """Close the session via ``POST /auth/logout``.
 
-        On success the auth token is removed from the session headers.
+        On success (``204``) the auth token is removed from the session
+        headers.  Any other successful status leaves it in place.
+
+        Raises:
+            requests.HTTPError: If the server returns an error status without a
+                MicroStrategy JSON error body.
         """
         logout_response = self.post("auth/logout")
         if logout_response.status_code == 204:
             self.destroy_auth_token()
+        else:
+            logout_response.raise_for_status()
 
     def login(
         self,

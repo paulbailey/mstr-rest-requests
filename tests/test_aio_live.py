@@ -7,7 +7,7 @@ from mstr.requests.rest import exceptions
 
 BASE_URL = "https://demo.microstrategy.com/MicroStrategyLibrary/api/"
 
-pytestmark = pytest.mark.anyio
+pytestmark = [pytest.mark.anyio, pytest.mark.live]
 
 
 @pytest.fixture

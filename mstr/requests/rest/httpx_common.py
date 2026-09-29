@@ -48,6 +48,7 @@ class HttpxClientStateMixin:
 
     client: httpx.Client | httpx.AsyncClient
     _owns_client: bool
+    raise_on_http_error: bool = False
 
     @property
     def base_url(self) -> str:
@@ -127,7 +128,7 @@ class HttpxClientStateMixin:
 
     def _handle_response(self, response: httpx.Response) -> httpx.Response:
         if response.is_error:
-            core.raise_for_mstr_error(response)
+            core.raise_for_mstr_error(response, self.raise_on_http_error)
         else:
             self.headers.update(core.mstr_response_headers(response.headers.items()))
         return response

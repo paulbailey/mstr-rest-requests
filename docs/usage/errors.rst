@@ -36,6 +36,10 @@ MicroStrategy error code in the body:
    * - :class:`~mstr.requests.rest.exceptions.ObjectAlreadyExistsException`
      - ERR0015
      - Object already exists
+   * - :class:`~mstr.requests.rest.exceptions.MSTRHTTPError`
+     - none
+     - An error response without a JSON body; only with
+       ``raise_on_http_error=True``
    * - :class:`~mstr.requests.rest.exceptions.MSTRUnknownException`
      - none
      - The error body has no error code
@@ -45,7 +49,8 @@ MicroStrategy error code in the body:
 
 Every exception has ``code`` and ``message`` attributes, plus
 ``iserver_code`` and ``iserver_message`` when the server reports an
-Intelligence Server error code.
+Intelligence Server error code. Exceptions raised for a response also carry
+its ``status_code`` and the ``response`` itself.
 
 .. code-block:: python
 
@@ -60,8 +65,22 @@ Intelligence Server error code.
        print(e.code, e.message)
 
 Error responses without a JSON body, such as a proxy's HTML error page, are
-returned as normal. Check ``response.is_success`` or call
-``response.raise_for_status()`` if you need to catch those too.
+returned as normal. To raise
+:class:`~mstr.requests.rest.exceptions.MSTRHTTPError` for those as well,
+create the session with ``raise_on_http_error=True``:
+
+.. code-block:: python
+
+   from mstr.requests.rest.exceptions import MSTRHTTPError
+
+   session = MSTRRESTSession(base_url=..., raise_on_http_error=True)
+   try:
+       session.get("projects")
+   except MSTRHTTPError as e:
+       print(e.status_code, e.response.text)
+
+For the deprecated requests-based sessions, set
+``session.raise_on_http_error = True`` instead.
 
 :class:`~mstr.requests.rest.exceptions.ExecutionCancelledException` is not
 raised by the library; it is there for your own code to use when a report or

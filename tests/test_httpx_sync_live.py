@@ -5,6 +5,8 @@ import pytest
 from mstr.requests import AuthenticatedMSTRRESTSession, MSTRRESTSession
 from mstr.requests.rest import exceptions
 
+pytestmark = pytest.mark.live
+
 BASE_URL = "https://demo.microstrategy.com/MicroStrategyLibrary/api/"
 
 

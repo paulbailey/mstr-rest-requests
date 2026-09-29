@@ -47,6 +47,11 @@ class MSTRBaseSession(HttpxClientStateMixin):
         follow_redirects: Passed to :class:`httpx.Client`.
         client: An existing :class:`httpx.Client` to use instead of
             creating one.  The session does not close a client it was given.
+        raise_on_http_error: Raise
+            :class:`~mstr.requests.rest.exceptions.MSTRHTTPError` for an
+            error response without a MicroStrategy JSON body, such as a
+            proxy's HTML error page.  By default such responses are returned
+            as they are.
         **client_kwargs: Any other :class:`httpx.Client` arguments,
             such as ``verify``, ``limits``, ``http2`` or ``transport``.
     """
@@ -58,8 +63,10 @@ class MSTRBaseSession(HttpxClientStateMixin):
         timeout: Any = None,
         follow_redirects: bool = True,
         client: httpx.Client | None = None,
+        raise_on_http_error: bool = False,
         **client_kwargs: Any,
     ) -> None:
+        self.raise_on_http_error = raise_on_http_error
         self._owns_client = client is None
         if client is None:
             client = httpx.Client(
@@ -97,7 +104,8 @@ class MSTRBaseSession(HttpxClientStateMixin):
 
         Raises:
             MSTRException: Or a subclass, on a MicroStrategy JSON error
-                response.  See :meth:`MSTRBaseSession.request
+                response, or on any error response when the session was
+                created with ``raise_on_http_error=True``.  See :meth:`MSTRBaseSession.request
                 <mstr.requests.rest.base.MSTRBaseSession.request>` for the
                 full mapping.
         """

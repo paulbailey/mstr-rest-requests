@@ -40,7 +40,13 @@ class MSTRBaseSession(BaseUrlSession):
     The auth token (and the other ``X-MSTR`` headers) are only sent to the
     origin of *base_url*: absolute URLs and redirects to another scheme,
     host or port go without them.
+
+    Set :attr:`raise_on_http_error` to ``True`` to raise
+    :class:`~mstr.requests.rest.exceptions.MSTRHTTPError` for error
+    responses without a MicroStrategy JSON body.
     """
+
+    raise_on_http_error: bool = False
 
     def has_session(self) -> bool:
         """Return ``True`` if the session holds a valid auth token."""
@@ -106,7 +112,7 @@ class MSTRBaseSession(BaseUrlSession):
         response = super(MSTRBaseSession, self).request(method, url, *args, **kwargs)
 
         if not response.ok:
-            core.raise_for_mstr_error(response)
+            core.raise_for_mstr_error(response, self.raise_on_http_error)
         else:
             self.headers.update(core.mstr_response_headers(response.headers.items()))
         return cast(Response, response)

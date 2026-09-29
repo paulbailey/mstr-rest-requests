@@ -13,6 +13,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from typing import Any
+
 from .errors import iserver_error_codes
 
 
@@ -25,12 +27,22 @@ class MSTRException(Exception):
         iserver_code: Optional I-Server error code, when present in the
             API response.
         iserver_message: Looked-up description for *iserver_code*.
+        status_code: The HTTP status of the response that caused the error,
+            or ``None`` if the error did not come from a response.
+        response: That response (:class:`httpx.Response` or
+            :class:`requests.Response`), or ``None``.
     """
+
+    status_code: int | None = None
+    response: Any = None
 
     def __init__(self, message: str | None = None, *args, **kwargs):
         self.code = kwargs.get("code", "N/A")
         msg = message if message is not None else kwargs.get("message", "Unknown error")
-        self.message = f"{self.code}: {msg}."
+        msg = str(msg)
+        self.message = (
+            f"{self.code}: {msg}" if msg.endswith(".") else f"{self.code}: {msg}."
+        )
         self.iserver_code = kwargs.get("iServerCode", None)
         if self.iserver_code:
             self.iserver_message = iserver_error_codes.get(self.iserver_code)
@@ -42,6 +54,15 @@ class MSTRException(Exception):
 
 class MSTRUnknownException(MSTRException):
     """Raised when the error response lacks a recognised ``code`` field."""
+
+
+class MSTRHTTPError(MSTRException):
+    """Raised for an error response without a MicroStrategy JSON error body.
+
+    For example a proxy's HTML error page, or a ``502`` with no body.  Only
+    raised by sessions created with ``raise_on_http_error=True``; otherwise
+    such responses are returned as they are.
+    """
 
 
 class LoginFailureException(MSTRException):

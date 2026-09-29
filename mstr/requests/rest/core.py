@@ -71,6 +71,9 @@ class ErrorResponse(Protocol):
     """The parts of an HTTP response needed to translate an error."""
 
     @property
+    def status_code(self) -> int: ...
+
+    @property
     def headers(self) -> Mapping[str, str]: ...
 
     @property
@@ -156,8 +159,12 @@ def raise_for_unresolved_credentials(**credentials: tuple[Any, Any]) -> None:
 
 
 def warn_on_double_slash(url: str) -> None:
-    """Warn if *url* contains a ``//`` beyond the scheme separator."""
-    if url.count("//") > 1:
+    """Warn if the path of *url* contains ``//``.
+
+    The query string and fragment are ignored, so a URL passed as a query
+    parameter does not warn.
+    """
+    if "//" in urlsplit(url).path:
         warnings.warn(
             f"Your fully composed request ({url}) contains a `//` in the path, which is probably an error."
         )
@@ -211,8 +218,14 @@ def is_json_content_type(headers: Mapping[str, str]) -> bool:
     return False
 
 
-def exception_for_payload(payload: Mapping[str, Any]) -> exceptions.MSTRException:
-    """Return the exception matching a MicroStrategy JSON error *payload*."""
+def exception_for_payload(payload: Any) -> exceptions.MSTRException:
+    """Return the exception matching a MicroStrategy JSON error *payload*.
+
+    A payload that is not a JSON object (a list or a string, say) gives an
+    :class:`~mstr.requests.rest.exceptions.MSTRUnknownException`.
+    """
+    if not isinstance(payload, Mapping):
+        return exceptions.MSTRUnknownException(str(payload))
     try:
         code = payload["code"]
     except KeyError:
@@ -221,24 +234,42 @@ def exception_for_payload(payload: Mapping[str, Any]) -> exceptions.MSTRExceptio
     return exception_class(**payload)
 
 
-def raise_for_mstr_error(response: ErrorResponse) -> None:
+def raise_for_mstr_error(
+    response: ErrorResponse, raise_on_http_error: bool = False
+) -> None:
     """Raise the matching MicroStrategy exception for a failed *response*.
 
-    Call this only for responses with an unsuccessful status.  Responses
-    without a JSON body are left for the caller to handle.
+    Call this only for responses with an unsuccessful status.  The raised
+    exception carries the response and its ``status_code``.
+
+    Args:
+        response: The failed response.
+        raise_on_http_error: Raise
+            :class:`~mstr.requests.rest.exceptions.MSTRHTTPError` for a
+            response without a JSON body.  When ``False`` (the default) such
+            responses are left for the caller to handle.
 
     Raises:
         MSTRException: Or a subclass, chosen by the payload's ``code``.
+        MSTRHTTPError: For a non-JSON body, if *raise_on_http_error* is set.
     """
+    error: exceptions.MSTRException
     if not is_json_content_type(response.headers):
-        return
-    try:
-        payload = response.json()
-    except ValueError:
-        raise exceptions.MSTRException(
-            "Couldn't parse response: {}".format(response.text)
-        )
-    raise exception_for_payload(payload)
+        if not raise_on_http_error:
+            return
+        error = exceptions.MSTRHTTPError(f"HTTP {response.status_code} error")
+    else:
+        try:
+            payload = response.json()
+        except ValueError:
+            error = exceptions.MSTRException(
+                "Couldn't parse response: {}".format(response.text)
+            )
+        else:
+            error = exception_for_payload(payload)
+    error.status_code = response.status_code
+    error.response = response
+    raise error
 
 
 def login_payload(

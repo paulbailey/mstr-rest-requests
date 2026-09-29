@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import logging
 from types import TracebackType
 
 from .core import (
@@ -22,7 +23,10 @@ from .core import (
     raise_for_unresolved_credentials,
     resolve_credential,
 )
+from .exceptions import SessionException
 from .session import MSTRRESTSession
+
+logger = logging.getLogger(__name__)
 
 # Kept for backwards compatibility; both now live in core.
 _resolve = resolve_credential
@@ -115,4 +119,21 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         exc_tb: TracebackType | None,
     ) -> None:
         if not self._used_delegate:
+            self._logout_on_exit(exc_type)
+
+    def _logout_on_exit(self, exc_type: type[BaseException] | None) -> None:
+        """Log out, without hiding an exception raised in the ``with`` block.
+
+        An expired session (``SessionException``) is already logged out, so
+        it is ignored.  Any other logout error is raised only if the block
+        itself succeeded; otherwise it is logged and the block's exception
+        propagates.
+        """
+        try:
             self.logout()
+        except SessionException:
+            self.destroy_auth_token()
+        except Exception:
+            if exc_type is None:
+                raise
+            logger.warning("Logout failed while handling an exception", exc_info=True)
