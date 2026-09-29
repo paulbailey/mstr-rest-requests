@@ -1,4 +1,8 @@
+import pytest
+
 from mstr.requests.compat import MSTRRESTSession
+
+pytestmark = pytest.mark.live
 
 
 def test_project_id():

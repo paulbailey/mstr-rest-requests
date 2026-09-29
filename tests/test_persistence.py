@@ -1,5 +1,9 @@
+import pytest
+
 from mstr.requests.compat import AuthenticatedMSTRRESTSession
 from mstr.requests.compat import MSTRRESTSession
+
+pytestmark = pytest.mark.live
 
 
 def test_dict_methods():

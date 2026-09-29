@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0]
+### Added
+- `raise_on_http_error=True` (a constructor argument on the httpx and async sessions, an attribute on the requests-based ones) raises the new `MSTRHTTPError` for error responses without a MicroStrategy JSON body, such as a proxy's HTML error page or an empty 502. Off by default, so such responses are still returned as before.
+- Every `MSTRException` raised for a response carries `status_code` and `response`.
+- A `py.typed` marker, so type checkers use the package's type hints.
+
+### Fixed
+- Leaving an `AuthenticatedMSTRRESTSession` or `AsyncAuthenticatedMSTRRESTSession` block with an exception no longer replaces that exception with a logout error. The logout error is logged as a warning on the `mstr.requests` logger instead.
+- An expired session (`SessionException`) during logout on exit is now ignored, even when the block succeeded, and the token is cleared.
+- `logout()` raises `HTTPStatusError` (`requests.HTTPError` for the requests-based sessions) when the server answers with an error status and no JSON error body. Previously it did nothing and left the token in place.
+- A JSON error body that is not an object (a list or a string) raises `MSTRUnknownException` instead of `TypeError`.
+- Error messages that already end in a full stop no longer get a second one.
+- The `//` warning only checks the URL path, so a URL in a query parameter no longer triggers it.
+
+### Changed
+- Tests that call demo.microstrategy.com are marked `live` and only run with `pytest --live`. CI still runs them.
+
 ## [2.1.0]
 ### Security
 - The auth token (and the other `X-MSTR` headers) is now only sent to the scheme, host and port of `base_url`. Previously it was sent to any absolute URL requested through the session, and it was forwarded when the server redirected to another host, because httpx and requests only strip `Authorization` on redirects. Sessions without a `base_url` send the token to the URL requested but still drop it on a redirect to another origin. Applies to the httpx, async and deprecated requests-based sessions.
@@ -67,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session persistence: serialise/restore sessions via `json()` and `from_dict()`.
 - Typed exceptions for MicroStrategy API errors (see `mstr.requests.rest.exceptions`).
 
+[2.2.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.2.0
 [2.1.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.1.0
 [2.0.1]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.0.1
 [2.0.0]: https://github.com/paulbailey/mstr-rest-requests/releases/tag/v2.0.0

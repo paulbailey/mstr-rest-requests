@@ -422,8 +422,9 @@ from mstr.requests.rest.exceptions import LoginFailureException
 ```
 
 Error responses without a JSON body (for example a proxy's HTML error page)
-are returned as normal, so check `response.is_success` or call
-`response.raise_for_status()` if you need to catch those too.
+are returned as normal. Pass `raise_on_http_error=True` when creating the
+session to raise `MSTRHTTPError` for those too. Exceptions raised for a
+response carry its `status_code` and the `response`.
 
 ## License
 

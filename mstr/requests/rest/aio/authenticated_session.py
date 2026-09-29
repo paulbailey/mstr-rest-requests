@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import inspect
+import logging
 from collections.abc import Awaitable, Callable
 from types import TracebackType
 from typing import Any, TypeAlias, cast
@@ -23,8 +24,11 @@ from typing import Any, TypeAlias, cast
 import anyio.to_thread
 
 from mstr.requests.rest.core import raise_for_unresolved_credentials
+from mstr.requests.rest.exceptions import SessionException
 
 from .session import AsyncMSTRRESTSession
+
+logger = logging.getLogger(__name__)
 
 AsyncCredential: TypeAlias = (
     str | Callable[[], str] | Callable[[], Awaitable[str]] | None
@@ -151,6 +155,23 @@ class AsyncAuthenticatedMSTRRESTSession(AsyncMSTRRESTSession):
     ) -> None:
         try:
             if not self._used_delegate:
-                await self.logout()
+                await self._logout_on_exit(exc_type)
         finally:
             await self.aclose()
+
+    async def _logout_on_exit(self, exc_type: type[BaseException] | None) -> None:
+        """Log out, without hiding an exception raised in the ``with`` block.
+
+        An expired session (``SessionException``) is already logged out, so
+        it is ignored.  Any other logout error is raised only if the block
+        itself succeeded; otherwise it is logged and the block's exception
+        propagates.
+        """
+        try:
+            await self.logout()
+        except SessionException:
+            self.destroy_auth_token()
+        except Exception:
+            if exc_type is None:
+                raise
+            logger.warning("Logout failed while handling an exception", exc_info=True)

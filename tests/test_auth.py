@@ -23,6 +23,7 @@ def logged_in_session():
     session.logout()
 
 
+@pytest.mark.live
 def test_login(session):
     assert session.has_session() is False
     session.login()
@@ -31,16 +32,19 @@ def test_login(session):
     assert session.has_session() is False
 
 
+@pytest.mark.live
 def test_prolong_session(logged_in_session):
     response = logged_in_session.put_sessions()
     assert response.status_code == 204
 
 
+@pytest.mark.live
 def test_get_session_status(logged_in_session):
     response = logged_in_session.get_sessions()
     assert response.status_code == 200
 
 
+@pytest.mark.live
 def test_get_session_failure(session):
     session.login()
     assert session.has_session() is True
@@ -55,6 +59,7 @@ def test_get_session_failure(session):
 #         logged_in_session.get_sessions()
 
 
+@pytest.mark.live
 def test_context_manager():
     with AuthenticatedMSTRRESTSession(
         base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
