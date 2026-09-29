@@ -11,6 +11,7 @@ object, providing a more straightforward interface for the
 
    usage/installation
    usage/quickstart
+   usage/async
    api
 
 

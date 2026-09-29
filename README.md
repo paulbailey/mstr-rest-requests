@@ -20,6 +20,7 @@ To use the built-in credential providers, install the corresponding extra:
 pip install mstr-rest-requests[aws]    # AWS Secrets Manager & SSM Parameter Store
 pip install mstr-rest-requests[azure]  # Azure Key Vault
 pip install mstr-rest-requests[gcp]    # Google Cloud Secret Manager
+pip install mstr-rest-requests[async]  # Async sessions (httpx)
 ```
 
 ## Quick start
@@ -314,6 +315,50 @@ available. Two extra keyword arguments are added to every request method:
 ```python
 response = session.get("reports/abc123", project_id="B7CA92...")
 ```
+
+## Async usage
+
+Install the `async` extra (`pip install mstr-rest-requests[async]`) to get
+`AsyncMSTRRESTSession` and `AsyncAuthenticatedMSTRRESTSession`. They are
+built on [httpx](https://www.python-httpx.org/), work with asyncio and trio,
+and mirror the synchronous classes method for method:
+
+```python
+import asyncio
+
+from mstr.requests import AsyncAuthenticatedMSTRRESTSession
+
+
+async def main():
+    async with AsyncAuthenticatedMSTRRESTSession(
+        base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/",
+        username="dave",
+        password="hellodave",
+    ) as session:
+        await session.load_projects()
+        project_id = session.get_project_id("My Project")
+        responses = await asyncio.gather(
+            session.get("reports/abc123", project_id=project_id),
+            session.get("reports/def456", project_id=project_id),
+        )
+
+
+asyncio.run(main())
+```
+
+Differences from the synchronous classes:
+
+- Methods are coroutines and return `httpx.Response` objects.
+- Credentials can also be `async def` callables. Plain callables, including
+  the built-in credential providers, run in a worker thread so they don't
+  block the event loop.
+- The session wraps an `httpx.AsyncClient`, available as `session.client`.
+  Extra keyword arguments (`verify`, `limits`, `http2`, `transport`, ...) are
+  passed to it. As with the synchronous session, there is no timeout by
+  default and redirects are followed.
+- Use `async with` (or `await session.aclose()`) to release connections.
+- `to_dict()` / `from_dict()` use the same format as the synchronous session,
+  so a session can be handed between the two.
 
 ## Exceptions
 

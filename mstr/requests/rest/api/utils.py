@@ -14,6 +14,7 @@
 #    limitations under the License.
 
 import functools
+import inspect
 from collections.abc import Callable
 from typing import Any
 
@@ -21,7 +22,20 @@ from mstr.requests.rest.exceptions import SessionException
 
 
 def check_valid_session(f: Callable[..., Any]) -> Callable[..., Any]:
-    """Decorator that raises :class:`SessionException` if no auth token is present."""
+    """Decorator that raises :class:`SessionException` if no auth token is present.
+
+    Works on both regular methods and coroutine methods.
+    """
+
+    if inspect.iscoroutinefunction(f):
+
+        @functools.wraps(f)
+        async def check_async(self: Any, *args: Any, **kwargs: Any) -> Any:
+            if self.has_session():
+                return await f(self, *args, **kwargs)
+            raise SessionException("There is no valid session available.")
+
+        return check_async
 
     @functools.wraps(f)
     def check(self: Any, *args: Any, **kwargs: Any) -> Any:
