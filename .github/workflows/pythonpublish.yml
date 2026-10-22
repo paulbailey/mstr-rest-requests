@@ -1,14 +1,33 @@
-# This workflow uploads a Python package using uv when a release is created
+# This workflow publishes the package to PyPI using uv.
+#
+# On every push to main it reads the version from pyproject.toml. If there is
+# no release tagged v<version> yet, it builds and uploads the package, then
+# creates that GitHub release. To ship a new version, merge a PR that bumps
+# the version in pyproject.toml and uv.lock.
+#
+# Creating a release by hand still publishes, as long as the tag matches the
+# version. Releases created by this workflow use GITHUB_TOKEN, which does not
+# trigger the release event, so nothing is published twice.
+#
+# Publishing stays in this file because PyPI trusted publishing is tied to
+# the workflow's filename.
 # For more information see: https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-python#publishing-to-pypi
 
 name: Upload Python Package
 
 on:
+  push:
+    branches: [main]
   release:
     types: [created]
 
 permissions:
+  contents: write
   id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -20,16 +39,44 @@ jobs:
         with:
           version: "0.11.21"
           python-version: "3.14"
-      - name: Check release tag matches package version
+      - name: Decide whether to publish
+        id: plan
         env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
           VERSION=$(uv version --short)
-          if [ "$TAG" != "v$VERSION" ]; then
-            echo "::error::Release tag $TAG does not match pyproject.toml version $VERSION (expected v$VERSION). Bump the version before releasing."
-            exit 1
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" = "release" ]; then
+            if [ "$TAG" != "v$VERSION" ]; then
+              echo "::error::Release tag $TAG does not match pyproject.toml version $VERSION (expected v$VERSION). Bump the version before releasing."
+              exit 1
+            fi
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "create_release=false" >> "$GITHUB_OUTPUT"
+          elif gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "Release v$VERSION already exists; nothing to publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No release for v$VERSION yet; publishing."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "create_release=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Build and publish
+        if: steps.plan.outputs.publish == 'true'
+        # --check-url skips files already on PyPI, so a re-run after a
+        # failed release step does not fail here.
         run: |
           uv build
-          uv publish
+          uv publish --check-url https://pypi.org/simple/
+      - name: Create GitHub release
+        if: steps.plan.outputs.create_release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: |
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSION" \
+            --generate-notes
