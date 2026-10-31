@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +20,10 @@ Nothing here performs I/O, so the same mixins serve both
 
 from __future__ import annotations
 
+import builtins
 import json
 import logging
-from typing import Any, Dict as DictType, Self
+from typing import Any, Generic, Self, TypeVar
 
 import httpx
 
@@ -37,8 +37,10 @@ logger = logging.getLogger(__name__)
 # ``request()`` to the auth-scope event hook, which runs on every redirect hop.
 _AUTH_SCOPE = "mstr_requests.auth_scope"
 
+_ClientT = TypeVar("_ClientT", httpx.Client, httpx.AsyncClient)
 
-class HttpxClientStateMixin:
+
+class HttpxClientStateMixin(Generic[_ClientT]):
     """Session state held on a wrapped httpx client.
 
     The host class sets :attr:`client` to an :class:`httpx.Client` or
@@ -48,7 +50,7 @@ class HttpxClientStateMixin:
     a redirect, whose origin differs from :attr:`base_url`'s.
     """
 
-    client: httpx.Client | httpx.AsyncClient
+    client: _ClientT
     _owns_client: bool
     raise_on_http_error: bool = False
     retries: int = 0
@@ -230,7 +232,7 @@ class HttpxSessionPersistenceMixin:
     cookies: httpx.Cookies
     headers: httpx.Headers
 
-    def to_dict(self) -> DictType[str, Any]:
+    def to_dict(self) -> builtins.dict[str, Any]:
         """Return a dict snapshot of the session state.
 
         The dict contains ``base_url``, ``cookies``, and ``headers``.
@@ -246,7 +248,7 @@ class HttpxSessionPersistenceMixin:
             "headers": dict(self.headers),
         }
 
-    def dict(self) -> DictType[str, Any]:
+    def dict(self) -> builtins.dict[str, Any]:
         """Alias for :meth:`to_dict`. Prefer :meth:`to_dict` for clarity."""
         return self.to_dict()
 
@@ -254,7 +256,7 @@ class HttpxSessionPersistenceMixin:
         """Return a JSON string snapshot of the session state."""
         return json.dumps(self.to_dict())
 
-    def update_from_json(self, data: DictType[str, Any] | str) -> None:
+    def update_from_json(self, data: builtins.dict[str, Any] | str) -> None:
         """Restore session state from a dict or JSON string.
 
         Cookies are restored for the host of the restored ``base_url``
@@ -283,10 +285,10 @@ class HttpxSessionPersistenceMixin:
             self.cookies = cookies
             self.headers.update(input_data["headers"])
         except KeyError as e:
-            raise SessionException(str(e))
+            raise SessionException(str(e)) from e
 
     @classmethod
-    def from_dict(cls, session_dict: DictType[str, Any], **kwargs: Any) -> Self:
+    def from_dict(cls, session_dict: builtins.dict[str, Any], **kwargs: Any) -> Self:
         """Create a new session instance from a dict snapshot.
 
         Args:
@@ -297,6 +299,6 @@ class HttpxSessionPersistenceMixin:
             A new session with state restored from *session_dict*.
         """
         base_url: str = session_dict.get("base_url", "")
-        session = cls(base_url=base_url, **kwargs)  # type: ignore[call-arg]
+        session = cls(base_url=base_url, **kwargs)  # ty: ignore[unknown-argument]
         session.update_from_json(session_dict)
         return session

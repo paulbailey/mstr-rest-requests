@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +34,7 @@ class SessionsMixin:
         Returns:
             A :class:`requests.Response`.
         """
-        return cast("Response", self.put("sessions"))
+        return self.put("sessions")
 
     @check_valid_session
     def get_sessions_userinfo(self: MSTRSessionProtocol) -> Response:
@@ -45,7 +44,7 @@ class SessionsMixin:
             A :class:`requests.Response` whose JSON body contains user
             details.
         """
-        return cast("Response", self.get("sessions/userInfo"))
+        return self.get("sessions/userInfo")
 
     @check_valid_session
     def get_sessions(self: MSTRSessionProtocol) -> Response:
@@ -54,7 +53,7 @@ class SessionsMixin:
         Returns:
             A :class:`requests.Response`.
         """
-        return cast("Response", self.get("sessions"))
+        return self.get("sessions")
 
     def extend_session(self) -> Response:
         """Prolong the current session.

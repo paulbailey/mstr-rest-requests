@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `from_dict()`, `__enter__()` and `__aenter__()` on the httpx and async sessions are annotated as returning `typing.Self`, so type checkers infer the subclass you call them on.
-- Development: code is formatted with ruff instead of black, and CI checks formatting.
+- The package is built with `uv_build` instead of hatchling. The wheel and sdist contain the same modules.
+- Raising `SessionException` from inside an `except` block now chains the original error (`raise ... from`).
+- Development: Astral tools throughout. ruff formats and lints the code (instead of black), ty type-checks it (instead of mypy), and CI runs all three.
 
 ## [2.3.0]
 ### Added

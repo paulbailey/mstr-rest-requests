@@ -15,6 +15,8 @@ import mstr
 from mstr.requests import AuthenticatedMSTRRESTSession, MSTRRESTSession
 from mstr.requests.compat import (
     AuthenticatedMSTRRESTSession as CompatAuthenticatedMSTRRESTSession,
+)
+from mstr.requests.compat import (
     MSTRRESTSession as CompatMSTRRESTSession,
 )
 from mstr.requests.rest import core, exceptions

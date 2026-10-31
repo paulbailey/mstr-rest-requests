@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,14 +100,14 @@ class AuthMixin:
         Returns:
             A :class:`requests.Response` for the login request.
         """
-        return self.post_login(username, password, api_key, application_type)  # type: ignore[misc]
+        return self.post_login(username, password, api_key, application_type)  # ty: ignore[invalid-argument-type]
 
     def logout(self) -> None:
         """Log out and close the current REST API session.
 
         Convenience alias for :meth:`post_logout`.
         """
-        return self.post_logout()  # type: ignore[misc]
+        return self.post_logout()  # ty: ignore[invalid-argument-type]
 
     def delegate(self: _T, identity_token: str) -> Response:
         """Authenticate with a delegated identity token via ``POST /auth/delegate``.

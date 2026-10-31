@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +24,9 @@ surface without reading the base-class source.
 
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 from http.cookiejar import CookieJar
-from typing import Any, MutableMapping, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from requests import Response
 

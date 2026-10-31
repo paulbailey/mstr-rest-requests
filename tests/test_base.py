@@ -1,6 +1,5 @@
 """Unit tests for MSTRBaseSession (base.py) with mocks; no network."""
 
-import warnings
 from unittest.mock import MagicMock, patch
 
 import pytest

@@ -1,7 +1,6 @@
 import pytest
 
-from mstr.requests.compat import AuthenticatedMSTRRESTSession
-from mstr.requests.compat import MSTRRESTSession
+from mstr.requests.compat import AuthenticatedMSTRRESTSession, MSTRRESTSession
 
 pytestmark = pytest.mark.live
 

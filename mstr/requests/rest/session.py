@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +15,14 @@
 import warnings
 from typing import Any
 
-from .base import MSTRBaseSession
-from .mixins import SessionPersistenceMixin
 from mstr.requests.rest.api import (
     AuthMixin,
     ProjectsMixin,
     SessionsMixin,
 )
+
+from .base import MSTRBaseSession
+from .mixins import SessionPersistenceMixin
 
 
 class MSTRRESTSession(

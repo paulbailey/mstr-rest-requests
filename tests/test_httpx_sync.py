@@ -10,13 +10,17 @@ import httpx
 import pytest
 import requests
 
-from mstr.requests.compat import MSTRRESTSession
-from mstr.requests.rest import exceptions
 from mstr.requests import (
     AuthenticatedMSTRRESTSession as HttpxAuthenticatedMSTRRESTSession,
+)
+from mstr.requests import (
     MSTRRESTSession as HttpxMSTRRESTSession,
+)
+from mstr.requests import (
     MSTRSessionProtocol as HttpxMSTRSessionProtocol,
 )
+from mstr.requests.compat import MSTRRESTSession
+from mstr.requests.rest import exceptions
 from mstr.requests.rest.base import MSTR_AUTH_TOKEN, MSTR_PROJECT_ID_HEADER
 
 BASE_URL = "https://example.com/api/"

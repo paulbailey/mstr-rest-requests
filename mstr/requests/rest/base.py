@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +45,7 @@ class MSTRBaseSession(BaseUrlSession):
     responses without a MicroStrategy JSON body.
     """
 
+    base_url: str
     raise_on_http_error: bool = False
 
     def has_session(self) -> bool:
@@ -96,7 +96,10 @@ class MSTRBaseSession(BaseUrlSession):
         core.warn_on_double_slash(url)
 
         headers: dict[str, Any] = core.build_request_headers(
-            kwargs.get("headers"), self.headers, include_auth, project_id
+            kwargs.get("headers"),
+            self.headers,  # ty: ignore[invalid-argument-type]
+            include_auth,
+            project_id,
         )
         # requests drops session headers whose per-request value is None.
         if not include_auth:
@@ -109,7 +112,7 @@ class MSTRBaseSession(BaseUrlSession):
                 headers[name] = None
         kwargs["headers"] = headers
 
-        response = super(MSTRBaseSession, self).request(method, url, *args, **kwargs)
+        response = super().request(method, url, *args, **kwargs)
 
         if not response.ok:
             core.raise_for_mstr_error(response, self.raise_on_http_error)

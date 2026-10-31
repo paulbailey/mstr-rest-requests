@@ -1,14 +1,12 @@
 """Unit tests for REST API mixins (auth, projects, sessions, utils) with mocks; no network."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-from requests import Response
 
 from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 from mstr.requests.rest.base import MSTR_AUTH_TOKEN
-
 
 BASE_URL = "https://example.com/api/"
 

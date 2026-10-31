@@ -7,7 +7,6 @@ import pytest
 from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 
-
 BASE_URL = "https://example.com/api/"
 
 

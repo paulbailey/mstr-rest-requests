@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,5 +13,7 @@
 #    limitations under the License.
 
 from .auth import AuthMixin
-from .sessions import SessionsMixin
 from .projects import ProjectsMixin
+from .sessions import SessionsMixin
+
+__all__ = ["AuthMixin", "ProjectsMixin", "SessionsMixin"]

@@ -4,10 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mstr.requests import AuthenticatedMSTRRESTSession, Credential
-from mstr.requests import compat
+from mstr.requests import AuthenticatedMSTRRESTSession, compat
 from mstr.requests.rest.authenticated_session import _resolve
-
 
 BASE_URL = "https://example.com/api/"
 
