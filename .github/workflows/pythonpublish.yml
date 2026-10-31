@@ -9,6 +9,9 @@
 # version. Releases created by this workflow use GITHUB_TOKEN, which does not
 # trigger the release event, so nothing is published twice.
 #
+# Lint and tests (pythonpackage.yml) run as part of this workflow and must
+# pass before anything is built or uploaded.
+#
 # Publishing stays in this file because PyPI trusted publishing is tied to
 # the workflow's filename.
 # For more information see: https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-python#publishing-to-pypi
@@ -22,16 +25,19 @@ on:
     types: [created]
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: publish
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      publish: ${{ steps.plan.outputs.publish }}
+      create_release: ${{ steps.plan.outputs.create_release }}
     steps:
       - uses: actions/checkout@v7
       - name: Install uv
@@ -40,8 +46,7 @@ jobs:
           version: "0.13.6"
           python-version: "3.14"
           # Most pushes to main publish nothing, so nothing is cached and
-          # setup-uv's cache step would fail the job. Release builds
-          # should not use a cache anyway.
+          # setup-uv's cache step would fail the job.
           enable-cache: false
       - name: Decide whether to publish
         id: plan
@@ -67,26 +72,45 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "create_release=true" >> "$GITHUB_OUTPUT"
           fi
+
+  test:
+    needs: plan
+    if: needs.plan.outputs.publish == 'true'
+    uses: ./.github/workflows/pythonpackage.yml
+    secrets: inherit
+
+  deploy:
+    needs: [plan, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.13.6"
+          python-version: "3.14"
+          # Release builds should not use a cache.
+          enable-cache: false
       - name: Build
-        if: steps.plan.outputs.publish == 'true'
         run: uv build
       # Signs each file in dist/ with this workflow's identity (PEP 740).
       # uv publish finds the .publish.attestation files and uploads them,
       # and PyPI shows them as provenance on the release's files.
       - name: Generate attestations
-        if: steps.plan.outputs.publish == 'true'
         uses: astral-sh/attest-action@v0.0.7
       - name: Publish
-        if: steps.plan.outputs.publish == 'true'
         # --check-url skips files already on PyPI, so a re-run after a
         # failed release step does not fail here. Attestations need
         # trusted publishing, so fail rather than fall back to a token.
         run: uv publish --trusted-publishing always --check-url https://pypi.org/simple/
       - name: Create GitHub release
-        if: steps.plan.outputs.create_release == 'true'
+        if: needs.plan.outputs.create_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.plan.outputs.version }}
+          VERSION: ${{ needs.plan.outputs.version }}
         run: |
           gh release create "v$VERSION" \
             --target "$GITHUB_SHA" \
