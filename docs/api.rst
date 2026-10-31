@@ -63,7 +63,7 @@ Deprecated modules
 
 .. autoclass:: mstr.requests.compat.MSTRRESTSession
    :members:
-   :inherited-members:
+   :inherited-members: Session
    :show-inheritance:
 
 .. autoclass:: mstr.requests.compat.AuthenticatedMSTRRESTSession
