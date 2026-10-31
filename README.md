@@ -296,10 +296,10 @@ with AuthenticatedMSTRRESTSession(
 ### Checking session state
 
 ```python
-session.has_session()      # True if an auth token is present
-session.get_session_info() # GET /sessions
-session.extend_session()   # PUT /sessions (prolongs the session)
-session.get_userinfo()     # GET /sessions/userInfo
+session.has_session()  # True if an auth token is present
+session.get_session_info()  # GET /sessions
+session.extend_session()  # PUT /sessions (prolongs the session)
+session.get_userinfo()  # GET /sessions/userInfo
 ```
 
 ### Serialisation and restoration

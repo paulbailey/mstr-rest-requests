@@ -111,7 +111,6 @@ class AuthMixin:
             delegate_response.raise_for_status()
         return delegate_response
 
-
     @check_valid_session
     def create_identity_token(self: _T) -> str:
         """Create an identity token via ``POST /auth/identityToken``.

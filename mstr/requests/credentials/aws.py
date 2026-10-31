@@ -129,9 +129,7 @@ class SecretsManagerSecret:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_parameter_value(
-    name: str, region_name: str | None = None
-) -> str:
+def _fetch_parameter_value(name: str, region_name: str | None = None) -> str:
     import boto3
 
     client = boto3.client("ssm", region_name=region_name)
@@ -139,9 +137,7 @@ def _fetch_parameter_value(
     return cast(str, response["Parameter"]["Value"])
 
 
-def parameter_store(
-    name: str, region_name: str | None = None
-) -> Callable[[], str]:
+def parameter_store(name: str, region_name: str | None = None) -> Callable[[], str]:
     """Return a callable that fetches an SSM Parameter Store value when invoked.
 
     The returned callable takes no arguments and returns a string.

@@ -18,7 +18,9 @@ def session():
 
 def test_request_warns_on_double_slash_in_path(session):
     """Request with path containing multiple '//' triggers warning."""
-    with patch.object(BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})) as mock_request:
+    with patch.object(
+        BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})
+    ) as mock_request:
         with pytest.warns(UserWarning, match="contains a `//` in the path"):
             session.request("GET", "path//with//slashes")
     mock_request.assert_called_once()
@@ -60,7 +62,9 @@ def test_request_captures_x_mstr_headers_on_success(session):
 def test_request_includes_auth_header_when_session_has_token(session):
     """When session has auth token, request passes it in headers (covers include_auth path)."""
     session.headers[MSTR_AUTH_TOKEN] = "existing-token"
-    with patch.object(BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})) as mock_request:
+    with patch.object(
+        BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})
+    ) as mock_request:
         session.request("GET", "path")
     call_kw = mock_request.call_args[1]
     assert call_kw["headers"].get(MSTR_AUTH_TOKEN) == "existing-token"
@@ -68,7 +72,9 @@ def test_request_includes_auth_header_when_session_has_token(session):
 
 def test_request_includes_project_id_header_when_given(session):
     """When project_id is passed, request includes X-MSTR-ProjectID header."""
-    with patch.object(BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})) as mock_request:
+    with patch.object(
+        BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})
+    ) as mock_request:
         session.request("GET", "path", project_id="proj-123")
     call_kw = mock_request.call_args[1]
     assert call_kw["headers"].get(MSTR_PROJECT_ID_HEADER) == "proj-123"
@@ -100,6 +106,8 @@ def test_request_does_not_mutate_caller_headers(session):
     """Headers passed by the caller are copied, not modified."""
     session.headers[MSTR_AUTH_TOKEN] = "existing-token"
     caller_headers = {"Accept": "application/json"}
-    with patch.object(BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})):
+    with patch.object(
+        BaseUrlSession, "request", return_value=MagicMock(ok=True, headers={})
+    ):
         session.request("GET", "path", headers=caller_headers, project_id="p")
     assert caller_headers == {"Accept": "application/json"}

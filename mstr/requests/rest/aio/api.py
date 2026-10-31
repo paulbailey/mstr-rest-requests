@@ -112,7 +112,6 @@ class AsyncAuthMixin:
             delegate_response.raise_for_status()
         return delegate_response
 
-
     @check_valid_session
     async def create_identity_token(self: _T) -> str:
         """Create an identity token via ``POST /auth/identityToken``.

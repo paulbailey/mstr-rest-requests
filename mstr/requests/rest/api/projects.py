@@ -63,6 +63,4 @@ class ProjectsMixin:
         try:
             return self.projects_by_name.get(project_name, None)
         except AttributeError:
-            raise SessionException(
-                "Call load_projects() before get_project_id()"
-            )
+            raise SessionException("Call load_projects() before get_project_id()")

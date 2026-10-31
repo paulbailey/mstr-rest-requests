@@ -121,7 +121,11 @@ class TestProjectsMixin:
     def test_get_projects_returns_json(self):
         session = MSTRRESTSession(base_url=BASE_URL)
         session.headers[MSTR_AUTH_TOKEN] = "x"
-        session.get = MagicMock(return_value=MagicMock(json=MagicMock(return_value=[{"id": "a", "name": "Proj"}])))
+        session.get = MagicMock(
+            return_value=MagicMock(
+                json=MagicMock(return_value=[{"id": "a", "name": "Proj"}])
+            )
+        )
         result = session.get_projects()
         session.get.assert_called_once_with("projects")
         assert result == [{"id": "a", "name": "Proj"}]
@@ -147,7 +151,9 @@ class TestProjectsMixin:
         session = MSTRRESTSession(base_url=BASE_URL)
         session.headers[MSTR_AUTH_TOKEN] = "x"
         session.get = MagicMock(
-            return_value=MagicMock(json=MagicMock(return_value=[{"id": "pid", "name": "MyProj"}]))
+            return_value=MagicMock(
+                json=MagicMock(return_value=[{"id": "pid", "name": "MyProj"}])
+            )
         )
         session.load_projects()
         assert session.get_project_id("MyProj") == "pid"
@@ -155,7 +161,11 @@ class TestProjectsMixin:
     def test_get_project_id_missing_returns_none(self):
         session = MSTRRESTSession(base_url=BASE_URL)
         session.headers[MSTR_AUTH_TOKEN] = "x"
-        session.get = MagicMock(return_value=MagicMock(json=MagicMock(return_value=[{"id": "pid", "name": "MyProj"}])))
+        session.get = MagicMock(
+            return_value=MagicMock(
+                json=MagicMock(return_value=[{"id": "pid", "name": "MyProj"}])
+            )
+        )
         session.load_projects()
         assert session.get_project_id("Nonexistent") is None
 

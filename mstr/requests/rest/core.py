@@ -217,8 +217,7 @@ def mstr_response_headers(
     return {
         key: value
         for key, value in response_headers
-        if key.upper().startswith(MSTR_HEADER_PREFIX)
-        and key.upper() != identity_token
+        if key.upper().startswith(MSTR_HEADER_PREFIX) and key.upper() != identity_token
     }
 
 
