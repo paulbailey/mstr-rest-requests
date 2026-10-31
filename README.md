@@ -8,7 +8,7 @@ Full documentation: <https://mstr-rest-requests.readthedocs.io/>
 
 ## Installation
 
-Requires Python 3.10 or later.
+Requires Python 3.11 or later.
 
 ```bash
 pip install mstr-rest-requests
