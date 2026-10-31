@@ -39,6 +39,10 @@ jobs:
         with:
           version: "0.13.6"
           python-version: "3.14"
+          # Most pushes to main publish nothing, so nothing is cached and
+          # setup-uv's cache step would fail the job. Release builds
+          # should not use a cache anyway.
+          enable-cache: false
       - name: Decide whether to publish
         id: plan
         env:
