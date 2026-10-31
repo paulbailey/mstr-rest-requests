@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,9 @@
 
 from __future__ import annotations
 
+import builtins
 import json
-from typing import TYPE_CHECKING, Any, Dict as DictType, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from requests.cookies import RequestsCookieJar, create_cookie
 from requests.utils import dict_from_cookiejar
@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from .protocols import MSTRSessionProtocol
 
 _S = TypeVar("_S", bound="MSTRSessionProtocol")
-_T = TypeVar("_T", bound="SessionPersistenceMixin")
 
 
 class SessionPersistenceMixin:
@@ -39,7 +38,7 @@ class SessionPersistenceMixin:
     sessions between processes.
     """
 
-    def to_dict(self: _S) -> DictType[str, Any]:
+    def to_dict(self: _S) -> builtins.dict[str, Any]:
         """Return a dict snapshot of the session state.
 
         The dict contains ``base_url``, ``cookies``, and ``headers``.
@@ -55,15 +54,15 @@ class SessionPersistenceMixin:
             "headers": dict(self.headers),
         }
 
-    def dict(self: _S) -> DictType[str, Any]:
+    def dict(self: _S) -> builtins.dict[str, Any]:
         """Alias for :meth:`to_dict`. Prefer :meth:`to_dict` for clarity."""
         return self.to_dict()
 
-    def json(self) -> str:
+    def json(self: _S) -> str:
         """Return a JSON string snapshot of the session state."""
-        return json.dumps(self.to_dict())  # type: ignore[misc]
+        return json.dumps(self.to_dict())
 
-    def update_from_json(self: _S, data: DictType[str, Any] | str) -> None:
+    def update_from_json(self: _S, data: builtins.dict[str, Any] | str) -> None:
         """Restore session state from a dict or JSON string.
 
         Cookies are restored for the host of the restored ``base_url``
@@ -92,10 +91,10 @@ class SessionPersistenceMixin:
             self.cookies = cookies
             self.headers.update(input_data["headers"])
         except KeyError as e:
-            raise SessionException(str(e))
+            raise SessionException(str(e)) from e
 
     @classmethod
-    def from_dict(cls: type[_T], session_dict: DictType[str, Any]) -> _T:
+    def from_dict(cls, session_dict: builtins.dict[str, Any]) -> Self:
         """Create a new session instance from a dict snapshot.
 
         Subclasses must accept ``base_url`` as their first constructor argument.
@@ -107,6 +106,6 @@ class SessionPersistenceMixin:
             A new session with state restored from *session_dict*.
         """
         base_url: str = session_dict.get("base_url", "")
-        session: _T = cls(base_url=base_url)  # type: ignore[call-arg]
-        session.update_from_json(session_dict)  # type: ignore[misc]
+        session = cls(base_url=base_url)  # ty: ignore[unknown-argument]
+        session.update_from_json(session_dict)  # ty: ignore[invalid-argument-type]
         return session

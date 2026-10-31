@@ -4,10 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mstr.requests import AuthenticatedMSTRRESTSession, Credential
-from mstr.requests import compat
+from mstr.requests import AuthenticatedMSTRRESTSession, compat
 from mstr.requests.rest.authenticated_session import _resolve
-
 
 BASE_URL = "https://example.com/api/"
 
@@ -38,14 +36,18 @@ class TestCallableCredentials:
     def test_plain_strings_still_work(self):
         session = self._make_session(username="user", password="pass")
         session.__enter__()
-        session.login.assert_called_once_with(username="user", password="pass", application_type=8)
+        session.login.assert_called_once_with(
+            username="user", password="pass", application_type=8
+        )
 
     def test_callable_username_and_password(self):
         session = self._make_session(
             username=lambda: "lazy_user", password=lambda: "lazy_pass"
         )
         session.__enter__()
-        session.login.assert_called_once_with(username="lazy_user", password="lazy_pass", application_type=8)
+        session.login.assert_called_once_with(
+            username="lazy_user", password="lazy_pass", application_type=8
+        )
 
     def test_callable_api_key(self):
         session = self._make_session(api_key=lambda: "my_key")
@@ -95,7 +97,9 @@ class TestCallableCredentials:
     def test_anonymous_login_with_no_credentials(self):
         session = self._make_session()
         session.__enter__()
-        session.login.assert_called_once_with(username=None, password=None, application_type=8)
+        session.login.assert_called_once_with(
+            username=None, password=None, application_type=8
+        )
 
     def test_callable_base_url(self):
         session = self.session_class(
@@ -117,7 +121,6 @@ class TestCallableCredentials:
         provider = MagicMock(return_value="https://example.com/api/")
         self.session_class(base_url=provider)
         provider.assert_not_called()
-
 
 
 class TestCallableCredentialsCompat(TestCallableCredentials):
@@ -188,9 +191,7 @@ class TestSecretsManagerSecret:
                 "SecretString": json.dumps(secret_data)
             }
         elif raw_string is not None:
-            mock_client.get_secret_value.return_value = {
-                "SecretString": raw_string
-            }
+            mock_client.get_secret_value.return_value = {"SecretString": raw_string}
         return mock_boto3
 
     def test_field_returns_callable(self):
@@ -385,7 +386,12 @@ class TestKeyVaultHelper:
         provider = key_vault("https://v.vault.azure.net/", "my-secret")
         with patch.dict(
             sys.modules,
-            {"azure": MagicMock(), "azure.identity": mock_identity, "azure.keyvault": MagicMock(), "azure.keyvault.secrets": mock_kv},
+            {
+                "azure": MagicMock(),
+                "azure.identity": mock_identity,
+                "azure.keyvault": MagicMock(),
+                "azure.keyvault.secrets": mock_kv,
+            },
         ):
             result = provider()
 
@@ -405,7 +411,12 @@ class TestKeyVaultHelper:
         provider = key_vault("https://v.vault.azure.net/", "my-secret", key="pass")
         with patch.dict(
             sys.modules,
-            {"azure": MagicMock(), "azure.identity": mock_identity, "azure.keyvault": MagicMock(), "azure.keyvault.secrets": mock_kv},
+            {
+                "azure": MagicMock(),
+                "azure.identity": mock_identity,
+                "azure.keyvault": MagicMock(),
+                "azure.keyvault.secrets": mock_kv,
+            },
         ):
             result = provider()
 
@@ -425,7 +436,12 @@ class TestKeyVaultHelper:
         provider = key_vault("https://v.vault.azure.net/", "my-secret")
         with patch.dict(
             sys.modules,
-            {"azure": MagicMock(), "azure.identity": mock_identity, "azure.keyvault": MagicMock(), "azure.keyvault.secrets": mock_kv},
+            {
+                "azure": MagicMock(),
+                "azure.identity": mock_identity,
+                "azure.keyvault": MagicMock(),
+                "azure.keyvault.secrets": mock_kv,
+            },
         ):
             with pytest.raises(ValueError, match="Secret my-secret has no value"):
                 provider()
@@ -535,7 +551,11 @@ class TestGCPSecretManagerHelper:
         provider = secret_manager("proj", "secret-id")
         with patch.dict(
             sys.modules,
-            {"google": MagicMock(), "google.cloud": MagicMock(), "google.cloud.secretmanager": mock_sm},
+            {
+                "google": MagicMock(),
+                "google.cloud": MagicMock(),
+                "google.cloud.secretmanager": mock_sm,
+            },
         ):
             result = provider()
 
@@ -552,7 +572,11 @@ class TestGCPSecretManagerHelper:
         provider = secret_manager("proj", "secret-id", key="user")
         with patch.dict(
             sys.modules,
-            {"google": MagicMock(), "google.cloud": MagicMock(), "google.cloud.secretmanager": mock_sm},
+            {
+                "google": MagicMock(),
+                "google.cloud": MagicMock(),
+                "google.cloud.secretmanager": mock_sm,
+            },
         ):
             result = provider()
 
@@ -566,7 +590,11 @@ class TestGCPSecretManagerHelper:
         provider = secret_manager("proj", "secret-id", version="42")
         with patch.dict(
             sys.modules,
-            {"google": MagicMock(), "google.cloud": MagicMock(), "google.cloud.secretmanager": mock_sm},
+            {
+                "google": MagicMock(),
+                "google.cloud": MagicMock(),
+                "google.cloud.secretmanager": mock_sm,
+            },
         ):
             provider()
 

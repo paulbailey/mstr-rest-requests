@@ -7,7 +7,9 @@ pytestmark = pytest.mark.live
 
 
 def test_unimplemented_method():
-    s = MSTRRESTSession(base_url='https://demo.microstrategy.com/MicroStrategyLibrary/api/')
+    s = MSTRRESTSession(
+        base_url="https://demo.microstrategy.com/MicroStrategyLibrary/api/"
+    )
     s.login()
     with pytest.raises(ResourceNotFoundException):
-        s.get('hello/dave')
+        s.get("hello/dave")

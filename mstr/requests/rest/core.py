@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,9 +56,9 @@ def resolve_credential(value: Credential) -> str | None:
     If *value* is callable it is invoked and the result returned; otherwise
     *value* is returned as-is.
     """
-    if callable(value):
-        return value()
-    return value
+    if isinstance(value, str) or value is None:
+        return value
+    return value()
 
 
 _ERROR_CODES: dict[str, type[exceptions.MSTRException]] = {
@@ -176,7 +175,8 @@ def warn_on_double_slash(url: str) -> None:
     """
     if "//" in urlsplit(url).path:
         warnings.warn(
-            f"Your fully composed request ({url}) contains a `//` in the path, which is probably an error."
+            f"Your fully composed request ({url}) contains a `//` in the path, which is probably an error.",
+            stacklevel=1,
         )
 
 
@@ -217,8 +217,7 @@ def mstr_response_headers(
     return {
         key: value
         for key, value in response_headers
-        if key.upper().startswith(MSTR_HEADER_PREFIX)
-        and key.upper() != identity_token
+        if key.upper().startswith(MSTR_HEADER_PREFIX) and key.upper() != identity_token
     }
 
 
@@ -279,7 +278,7 @@ def raise_for_mstr_error(
             payload = response.json()
         except ValueError:
             error = exceptions.MSTRException(
-                "Couldn't parse response: {}".format(response.text)
+                f"Couldn't parse response: {response.text}"
             )
         else:
             error = exception_for_payload(payload)

@@ -1,8 +1,7 @@
-from mstr.requests.compat import AuthenticatedMSTRRESTSession
-from mstr.requests.compat import MSTRRESTSession
-from mstr.requests.rest import exceptions
-
 import pytest
+
+from mstr.requests.compat import AuthenticatedMSTRRESTSession, MSTRRESTSession
+from mstr.requests.rest import exceptions
 
 
 @pytest.fixture(scope="function")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,7 +86,7 @@ class AuthMixin:
         Convenience alias for :meth:`post_login`.  If no credentials are
         provided the session attempts an anonymous connection.
         """
-        return self.post_login(  # type: ignore[misc]
+        return self.post_login(  # ty: ignore[invalid-argument-type]
             username, password, api_key, application_type
         )
 
@@ -96,7 +95,7 @@ class AuthMixin:
 
         Convenience alias for :meth:`post_logout`.
         """
-        self.post_logout()  # type: ignore[misc]
+        self.post_logout()  # ty: ignore[invalid-argument-type]
 
     def delegate(self: _T, identity_token: str) -> httpx.Response:
         """Authenticate with a delegated identity token via ``POST /auth/delegate``.
@@ -110,7 +109,6 @@ class AuthMixin:
         if delegate_response.status_code != 204:
             delegate_response.raise_for_status()
         return delegate_response
-
 
     @check_valid_session
     def create_identity_token(self: _T) -> str:
@@ -222,4 +220,6 @@ class ProjectsMixin:
         try:
             return self.projects_by_name.get(project_name, None)
         except AttributeError:
-            raise SessionException("Call load_projects() before get_project_id()")
+            raise SessionException(
+                "Call load_projects() before get_project_id()"
+            ) from None

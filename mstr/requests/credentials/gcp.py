@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,9 +109,7 @@ class SecretManagerSecret:
         version: Secret version (default ``"latest"``).
     """
 
-    def __init__(
-        self, project: str, secret_id: str, version: str = "latest"
-    ):
+    def __init__(self, project: str, secret_id: str, version: str = "latest"):
         self._project = project
         self._secret_id = secret_id
         self._version = version

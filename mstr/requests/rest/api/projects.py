@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,4 +64,4 @@ class ProjectsMixin:
         except AttributeError:
             raise SessionException(
                 "Call load_projects() before get_project_id()"
-            )
+            ) from None

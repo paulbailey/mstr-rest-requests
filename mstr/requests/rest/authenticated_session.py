@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,9 +69,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         api_key: Credential = None,
         application_type: int = 8,
     ):
-        super(AuthenticatedMSTRRESTSession, self).__init__(
-            base_url if isinstance(base_url, str) else ""
-        )
+        super().__init__(base_url if isinstance(base_url, str) else "")
         self._base_url_credential = base_url
         self._username = username
         self._password = password
@@ -82,8 +79,9 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         self._used_delegate = False
 
     def __enter__(self) -> AuthenticatedMSTRRESTSession:
-        if callable(self._base_url_credential):
-            self.base_url = self._base_url_credential()
+        base_url = self._base_url_credential
+        if base_url is not None and not isinstance(base_url, str):
+            self.base_url = base_url()
 
         identity_token = _resolve(self._identity_token)
         api_key = _resolve(self._api_key)
@@ -98,7 +96,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         )
 
         if identity_token is not None:
-            self.delegate(identity_token)
+            self.delegate(identity_token)  # ty: ignore[invalid-argument-type]
             self._used_delegate = True
         elif api_key is not None:
             self.login(api_key=api_key, application_type=self._application_type)
@@ -112,7 +110,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             self._used_delegate = False
         return self
 
-    def __exit__(
+    def __exit__(  # ty: ignore[invalid-method-override]
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,

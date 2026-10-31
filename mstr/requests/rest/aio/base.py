@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,7 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import Any, TypeVar
+from typing import Any, Self
 
 import anyio
 import httpx
@@ -24,10 +23,8 @@ import httpx
 from mstr.requests.rest import core
 from mstr.requests.rest.httpx_common import HttpxClientStateMixin
 
-_B = TypeVar("_B", bound="AsyncMSTRBaseSession")
 
-
-class AsyncMSTRBaseSession(HttpxClientStateMixin):
+class AsyncMSTRBaseSession(HttpxClientStateMixin[httpx.AsyncClient]):
     """Low-level async session that manages auth-token headers and error translation.
 
     Wraps an :class:`httpx.AsyncClient` (available as ``client``) rather
@@ -86,7 +83,7 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
             client = httpx.AsyncClient(
                 timeout=timeout, follow_redirects=follow_redirects, **client_kwargs
             )
-        self.client: httpx.AsyncClient = client
+        self.client = client
         self.base_url = base_url
         self._install_auth_scope_hook()
 
@@ -197,7 +194,7 @@ class AsyncMSTRBaseSession(HttpxClientStateMixin):
         if self._owns_client:
             await self.client.aclose()
 
-    async def __aenter__(self: _B) -> _B:
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(

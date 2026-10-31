@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,7 @@ from __future__ import annotations
 import logging
 import threading
 from types import TracebackType
-from typing import Any
+from typing import Any, Self
 
 import httpx
 
@@ -28,6 +27,8 @@ from mstr.requests.rest.core import (
     is_auth_url,
     is_session_expired,
     raise_for_unresolved_credentials,
+)
+from mstr.requests.rest.core import (
     resolve_credential as _resolve,
 )
 from mstr.requests.rest.exceptions import SessionException
@@ -111,10 +112,11 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         self._keepalive_stop = threading.Event()
         self._keepalive_thread: threading.Thread | None = None
 
-    def __enter__(self) -> AuthenticatedMSTRRESTSession:
+    def __enter__(self) -> Self:
         try:
-            if callable(self._base_url_credential):
-                self.base_url = self._base_url_credential()
+            base_url = self._base_url_credential
+            if base_url is not None and not isinstance(base_url, str):
+                self.base_url = base_url()
             self._authenticate()
             self._start_keepalive()
         except BaseException:

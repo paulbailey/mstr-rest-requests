@@ -7,7 +7,6 @@ import pytest
 from mstr.requests.compat import MSTRRESTSession
 from mstr.requests.rest import exceptions
 
-
 BASE_URL = "https://example.com/api/"
 
 
@@ -91,7 +90,9 @@ class TestSessionPersistenceMixin:
         session = MSTRRESTSession.from_dict(d)
         assert session.base_url == ""
 
-    def test_from_dict_with_missing_base_url_key_uses_default_then_raises_on_update(self):
+    def test_from_dict_with_missing_base_url_key_uses_default_then_raises_on_update(
+        self,
+    ):
         d = {"cookies": {}, "headers": {}}
         with pytest.raises(exceptions.SessionException):
             MSTRRESTSession.from_dict(d)

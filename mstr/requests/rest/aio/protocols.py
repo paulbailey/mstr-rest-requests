@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,8 @@
 
 from __future__ import annotations
 
-from typing import Any, MutableMapping, Protocol, runtime_checkable
+from collections.abc import MutableMapping
+from typing import Any, Protocol, runtime_checkable
 
 import httpx
 

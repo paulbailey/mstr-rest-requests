@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Paul Bailey
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,7 @@ import inspect
 import logging
 from collections.abc import Awaitable, Callable
 from types import TracebackType
-from typing import Any, TypeAlias, cast
+from typing import Any, Self, TypeAlias, cast
 
 import anyio
 import anyio.abc
@@ -50,7 +49,7 @@ event loop."""
 
 def _is_async_callable(value: object) -> bool:
     return inspect.iscoroutinefunction(value) or inspect.iscoroutinefunction(
-        getattr(value, "__call__", None)
+        getattr(value, "__call__", None)  # noqa: B004
     )
 
 
@@ -61,11 +60,11 @@ async def _aresolve(value: AsyncCredential) -> str | None:
     with an ``async def __call__``) are awaited.  Other callables are run in
     a worker thread.
     """
-    if not callable(value):
+    if value is None or isinstance(value, str):
         return value
     if _is_async_callable(value):
-        return cast(str, await value())  # type: ignore[misc]
-    return cast(str, await anyio.to_thread.run_sync(value))
+        return await cast("Callable[[], Awaitable[str]]", value)()
+    return await anyio.to_thread.run_sync(cast("Callable[[], str]", value))
 
 
 class AsyncAuthenticatedMSTRRESTSession(AsyncMSTRRESTSession):
@@ -133,7 +132,7 @@ class AsyncAuthenticatedMSTRRESTSession(AsyncMSTRRESTSession):
         self._auth_lock: anyio.Lock | None = None
         self._keepalive_group: anyio.abc.TaskGroup | None = None
 
-    async def __aenter__(self) -> AsyncAuthenticatedMSTRRESTSession:
+    async def __aenter__(self) -> Self:
         try:
             if callable(self._base_url_credential):
                 self.base_url = await _aresolve(self._base_url_credential) or ""

@@ -9,6 +9,8 @@ from requests.adapters import BaseAdapter
 from mstr.requests import AuthenticatedMSTRRESTSession, MSTRRESTSession
 from mstr.requests.compat import (
     AuthenticatedMSTRRESTSession as CompatAuthenticatedMSTRRESTSession,
+)
+from mstr.requests.compat import (
     MSTRRESTSession as CompatMSTRRESTSession,
 )
 from mstr.requests.rest import core, exceptions
@@ -133,9 +135,7 @@ def test_token_sent_to_absolute_url_on_same_origin(make_sync):
     assert recorder.requests[-1].headers.get(TOKEN) == "token-1"
 
 
-@pytest.mark.parametrize(
-    "path", ["redirect-away", "redirect-port", "redirect-http"]
-)
+@pytest.mark.parametrize("path", ["redirect-away", "redirect-port", "redirect-http"])
 def test_token_stripped_on_cross_origin_redirect(make_sync, path):
     session, recorder = make_sync()
     session.get(path)

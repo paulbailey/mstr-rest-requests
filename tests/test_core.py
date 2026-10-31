@@ -229,7 +229,9 @@ def test_auth_scope_origin_prefers_base_url():
 
 
 def test_mstr_header_names_is_case_insensitive():
-    assert core.mstr_header_names(["x-mstr-authtoken", "X-MSTR-ProjectID", "Accept"]) == [
+    assert core.mstr_header_names(
+        ["x-mstr-authtoken", "X-MSTR-ProjectID", "Accept"]
+    ) == [
         "x-mstr-authtoken",
         "X-MSTR-ProjectID",
     ]

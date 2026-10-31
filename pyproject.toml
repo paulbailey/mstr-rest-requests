@@ -3,9 +3,10 @@ name = "mstr-rest-requests"
 version = "2.3.1"
 description = "Easily make requests of the MicroStrategy REST API"
 authors = [{ name = "Paul Bailey", email = "bailey@dreamshake.net" }]
-requires-python = ">=3.10, <4"
+requires-python = ">=3.11, <4"
 readme = "README.md"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = [
     "httpx>=0.28.1",
     "anyio>=4",
@@ -32,18 +33,16 @@ dev = [
     "sphinx>=8.1,<10",
     "sphinx-rtd-theme>=3",
     "pytest-cov>=7,<8",
-    "mypy>=1.0.0,<2",
     "types-requests>=2.25.11,<3",
-    "black>=26.1,<27",
+    "ruff>=0.17.3,<0.18",
+    "ty>=0.0.95",
     "pre-commit",
     "trio>=0.34.0",
 ]
 
-[tool.hatch.build.targets.sdist]
-include = ["mstr"]
-
-[tool.hatch.build.targets.wheel]
-include = ["mstr"]
+[tool.uv.build-backend]
+module-name = "mstr"
+module-root = ""
 
 [tool.pytest.ini_options]
 markers = [
@@ -53,21 +52,19 @@ filterwarnings = [
     "ignore:The requests-based sessions in mstr.requests.compat:DeprecationWarning",
 ]
 
-[tool.mypy]
-python_version = "3.10"
-warn_return_any = true
-warn_unused_ignores = true
+[tool.ruff]
+target-version = "py311"
+line-length = 88
 
-# Third-party packages without stubs
-[[tool.mypy.overrides]]
-module = [
-    "boto3",
-    "boto3.*",
-    "requests_toolbelt",
-    "requests_toolbelt.*",
-]
-ignore_missing_imports = true
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["mstr"]
 
 [build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.13.6,<0.14"]
+build-backend = "uv_build"
