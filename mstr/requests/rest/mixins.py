@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Dict as DictType, TypeVar
+from typing import TYPE_CHECKING, Any, Dict as DictType, Self, TypeVar
 
 from requests.cookies import RequestsCookieJar, create_cookie
 from requests.utils import dict_from_cookiejar
@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from .protocols import MSTRSessionProtocol
 
 _S = TypeVar("_S", bound="MSTRSessionProtocol")
-_T = TypeVar("_T", bound="SessionPersistenceMixin")
 
 
 class SessionPersistenceMixin:
@@ -95,7 +94,7 @@ class SessionPersistenceMixin:
             raise SessionException(str(e))
 
     @classmethod
-    def from_dict(cls: type[_T], session_dict: DictType[str, Any]) -> _T:
+    def from_dict(cls, session_dict: DictType[str, Any]) -> Self:
         """Create a new session instance from a dict snapshot.
 
         Subclasses must accept ``base_url`` as their first constructor argument.
@@ -107,6 +106,6 @@ class SessionPersistenceMixin:
             A new session with state restored from *session_dict*.
         """
         base_url: str = session_dict.get("base_url", "")
-        session: _T = cls(base_url=base_url)  # type: ignore[call-arg]
+        session = cls(base_url=base_url)  # type: ignore[call-arg]
         session.update_from_json(session_dict)  # type: ignore[misc]
         return session

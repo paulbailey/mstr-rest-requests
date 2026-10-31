@@ -19,7 +19,7 @@ import inspect
 import logging
 from collections.abc import Awaitable, Callable
 from types import TracebackType
-from typing import Any, TypeAlias, cast
+from typing import Any, Self, TypeAlias, cast
 
 import anyio
 import anyio.abc
@@ -133,7 +133,7 @@ class AsyncAuthenticatedMSTRRESTSession(AsyncMSTRRESTSession):
         self._auth_lock: anyio.Lock | None = None
         self._keepalive_group: anyio.abc.TaskGroup | None = None
 
-    async def __aenter__(self) -> AsyncAuthenticatedMSTRRESTSession:
+    async def __aenter__(self) -> Self:
         try:
             if callable(self._base_url_credential):
                 self.base_url = await _aresolve(self._base_url_credential) or ""

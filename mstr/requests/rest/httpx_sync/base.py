@@ -17,14 +17,12 @@ from __future__ import annotations
 
 import time
 from types import TracebackType
-from typing import Any, TypeVar
+from typing import Any, Self
 
 import httpx
 
 from mstr.requests.rest import core
 from mstr.requests.rest.httpx_common import HttpxClientStateMixin
-
-_B = TypeVar("_B", bound="MSTRBaseSession")
 
 
 class MSTRBaseSession(HttpxClientStateMixin):
@@ -196,7 +194,7 @@ class MSTRBaseSession(HttpxClientStateMixin):
         if self._owns_client:
             self.client.close()
 
-    def __enter__(self: _B) -> _B:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(

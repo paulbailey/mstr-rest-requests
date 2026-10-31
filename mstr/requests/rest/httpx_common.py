@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict as DictType, TypeVar
+from typing import Any, Dict as DictType, Self
 
 import httpx
 
@@ -32,7 +32,6 @@ from mstr.requests.rest.exceptions import SessionException
 
 logger = logging.getLogger(__name__)
 
-_T = TypeVar("_T", bound="HttpxSessionPersistenceMixin")
 
 # Request extension carrying ``(allowed origin, include_auth)`` from
 # ``request()`` to the auth-scope event hook, which runs on every redirect hop.
@@ -287,7 +286,7 @@ class HttpxSessionPersistenceMixin:
             raise SessionException(str(e))
 
     @classmethod
-    def from_dict(cls: type[_T], session_dict: DictType[str, Any], **kwargs: Any) -> _T:
+    def from_dict(cls, session_dict: DictType[str, Any], **kwargs: Any) -> Self:
         """Create a new session instance from a dict snapshot.
 
         Args:
@@ -298,6 +297,6 @@ class HttpxSessionPersistenceMixin:
             A new session with state restored from *session_dict*.
         """
         base_url: str = session_dict.get("base_url", "")
-        session: _T = cls(base_url=base_url, **kwargs)  # type: ignore[call-arg]
+        session = cls(base_url=base_url, **kwargs)  # type: ignore[call-arg]
         session.update_from_json(session_dict)
         return session

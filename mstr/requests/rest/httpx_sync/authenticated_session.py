@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 import threading
 from types import TracebackType
-from typing import Any
+from typing import Any, Self
 
 import httpx
 
@@ -111,7 +111,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
         self._keepalive_stop = threading.Event()
         self._keepalive_thread: threading.Thread | None = None
 
-    def __enter__(self) -> AuthenticatedMSTRRESTSession:
+    def __enter__(self) -> Self:
         try:
             if callable(self._base_url_credential):
                 self.base_url = self._base_url_credential()
