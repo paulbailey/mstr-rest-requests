@@ -67,13 +67,21 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "create_release=true" >> "$GITHUB_OUTPUT"
           fi
-      - name: Build and publish
+      - name: Build
+        if: steps.plan.outputs.publish == 'true'
+        run: uv build
+      # Signs each file in dist/ with this workflow's identity (PEP 740).
+      # uv publish finds the .publish.attestation files and uploads them,
+      # and PyPI shows them as provenance on the release's files.
+      - name: Generate attestations
+        if: steps.plan.outputs.publish == 'true'
+        uses: astral-sh/attest-action@v0.0.7
+      - name: Publish
         if: steps.plan.outputs.publish == 'true'
         # --check-url skips files already on PyPI, so a re-run after a
-        # failed release step does not fail here.
-        run: |
-          uv build
-          uv publish --check-url https://pypi.org/simple/
+        # failed release step does not fail here. Attestations need
+        # trusted publishing, so fail rather than fall back to a token.
+        run: uv publish --trusted-publishing always --check-url https://pypi.org/simple/
       - name: Create GitHub release
         if: steps.plan.outputs.create_release == 'true'
         env:

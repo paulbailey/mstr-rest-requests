@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support for Python 3.15.
+- Releases on PyPI carry PEP 740 attestations, which show that each file was built and uploaded by this repository's publish workflow.
 
 ### Changed
 - `from_dict()`, `__enter__()` and `__aenter__()` on the httpx and async sessions are annotated as returning `typing.Self`, so type checkers infer the subclass you call them on.
