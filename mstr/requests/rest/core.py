@@ -182,7 +182,7 @@ def warn_on_double_slash(url: str) -> None:
 
 def build_request_headers(
     headers: Mapping[str, str] | None,
-    session_headers: Mapping[str, str],
+    session_headers: Mapping[str, str | bytes],
     include_auth: bool = True,
     project_id: str | None = None,
 ) -> dict[str, str]:
@@ -199,7 +199,8 @@ def build_request_headers(
     """
     result = dict(headers) if headers else {}
     if include_auth and MSTR_AUTH_TOKEN in session_headers:
-        result[MSTR_AUTH_TOKEN] = session_headers[MSTR_AUTH_TOKEN]
+        token = session_headers[MSTR_AUTH_TOKEN]
+        result[MSTR_AUTH_TOKEN] = token.decode() if isinstance(token, bytes) else token
     if project_id is not None:
         result[MSTR_PROJECT_ID_HEADER] = project_id
     return result

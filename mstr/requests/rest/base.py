@@ -61,11 +61,11 @@ class MSTRBaseSession(BaseUrlSession):
 
     def request(
         self,
-        method: str,
-        url: str,
+        method: str | bytes,
+        url: str | bytes,
+        *args,
         include_auth: bool = True,
         project_id: str | None = None,
-        *args,
         **kwargs,
     ) -> Response:
         """Send a request, injecting MicroStrategy headers automatically.
@@ -73,10 +73,11 @@ class MSTRBaseSession(BaseUrlSession):
         Args:
             method: HTTP method (``GET``, ``POST``, etc.).
             url: URL path relative to the session's *base_url*.
-            include_auth: Attach the ``X-MSTR-AuthToken`` header when
-                ``True`` (the default).
-            project_id: If given, sent as the ``X-MSTR-ProjectID`` header.
             *args: Passed through to :meth:`requests.Session.request`.
+            include_auth: Keyword-only. Attach the ``X-MSTR-AuthToken``
+                header when ``True`` (the default).
+            project_id: Keyword-only. If given, sent as the
+                ``X-MSTR-ProjectID`` header.
             **kwargs: Passed through to :meth:`requests.Session.request`.
 
         Returns:
@@ -92,12 +93,16 @@ class MSTRBaseSession(BaseUrlSession):
             ObjectAlreadyExistsException: On ``ERR0015`` responses.
             MSTRException: On any other MicroStrategy error response.
         """
+        if isinstance(method, bytes):
+            method = method.decode()
+        if isinstance(url, bytes):
+            url = url.decode()
 
         core.warn_on_double_slash(url)
 
         headers: dict[str, Any] = core.build_request_headers(
             kwargs.get("headers"),
-            self.headers,  # ty: ignore[invalid-argument-type]
+            self.headers,
             include_auth,
             project_id,
         )

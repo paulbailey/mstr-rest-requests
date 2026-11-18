@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0]
+### Changed
+- `MSTRBaseSession.request()` (and so `MSTRRESTSession`) now takes `include_auth` and `project_id` as keyword-only arguments, placed after `*args`. Passing them positionally, as the third and fourth arguments, no longer works. Before, a positional call such as `request("GET", url, params)` bound `params` to `include_auth`. `method` and `url` also accept `bytes`, matching `requests.Session.request`.
+- `build_request_headers()` accepts session headers whose values are `bytes` and decodes an auth token held as `bytes`.
+
 ## [2.4.0]
 ### Removed
 - Support for Python 3.10, which reached end of life on 2026-10-01. Python 3.11 or later is now required.
