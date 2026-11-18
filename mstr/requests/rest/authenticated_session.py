@@ -110,7 +110,7 @@ class AuthenticatedMSTRRESTSession(MSTRRESTSession):
             self._used_delegate = False
         return self
 
-    def __exit__(  # ty: ignore[invalid-method-override]
+    def __exit__(  # ty: ignore[incompatible-method-override]
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
